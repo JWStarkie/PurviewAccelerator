@@ -1,0 +1,1 @@
+New-AzResourceGroupDeployment -ResourceGroupName pvtest001 -TemplateFile ".\purviewtemplate.json"
