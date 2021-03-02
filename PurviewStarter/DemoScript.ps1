@@ -412,21 +412,9 @@ if ($TenantId) {
     Write-Output "Unable to select the subscription. Please provide the tenant Id and subscription you're connecting to"
 }
 
-##
-## Check to see if we are going to update the ADF account
-##
-if ($UpdateAdfAccountTags -eq $true) {
-    if (!$DatafactoryAccountName) {
-        throw "Data Factory Account Name needs to be specified"
-    }
-    if (!$DatafactoryLocation) {
-        throw "Data Factory Account Location needs to be specified"
-    }
-    if (!$DatafactoryResourceGroup) {
-        throw "Data Factory Account Resource Group needs to be specified"
-    }
-    UpdateAzureDataFactoryV2
-}
+
+
+
 
 ##
 ## Check to see if we are going to create a demo azure storage account
@@ -444,6 +432,24 @@ if ($CreateAzureStorageAccount -eq $true) {
     New-AzureStorageDemoAccount -AccountName $AzureStorageAccountName `
                                 -ResourceGroup $AzureStorageResourceGroup `
                                 -Location $AzureStorageLocation
+}
+
+New-AzResourceGroupDeployment -ResourceGroupName $ResourceGroup -TemplateFile ".\purviewtemplate.json"
+
+##
+## Check to see if we are going to update the ADF account
+##
+if ($UpdateAdfAccountTags -eq $true) {
+    if (!$DatafactoryAccountName) {
+        throw "Data Factory Account Name needs to be specified"
+    }
+    if (!$DatafactoryLocation) {
+        throw "Data Factory Account Location needs to be specified"
+    }
+    if (!$DatafactoryResourceGroup) {
+        throw "Data Factory Account Resource Group needs to be specified"
+    }
+    UpdateAzureDataFactoryV2
 }
 
 ##
