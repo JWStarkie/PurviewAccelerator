@@ -1,9 +1,9 @@
 ﻿param (
-    [string]$CatalogName,
+    [string]$CatalogName = $ResourceGroup + "pv",
     [string]$TenantId,
     [string]$SubscriptionId,
     [string]$ResourceGroup,
-    [string]$CatalogResourceGroup,
+    [string]$CatalogResourceGroup = $ResourceGroup,
     [string]$StorageBlobName = $ResourceGroup + "adcblob",
     [string]$AdlsGen2Name = $ResourceGroup + "adcadls",
     [string]$DataFactoryName = $ResourceGroup + "adcfactory",
@@ -11,13 +11,11 @@
 )
 
 if ($ConnectToAzure -eq $true) {
-    .\purviewcreation.ps1 
     .\demoscript.ps1 .\demoscript.ps1 -ConnectToAzure `
                 -SubscriptionId $SubscriptionId `
                 -TenantId $TenantId
 }
 else {
-    .\purviewcreation.ps1 
     .\demoscript.ps1 -CreateAdfAccountIfNotExists `
                  -UpdateAdfAccountTags `
                  -DatafactoryAccountName $DataFactoryName `
