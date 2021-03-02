@@ -11,6 +11,7 @@
 - add synapse
 - add copy pipeline from gen2 to synapse (link synapse and adf using credentials/managed identity)
 - add synapse to purview (link synapse and purview using credentials/managed identity)
+- add creator of resources to Purview IAM (Access Control)
 
 ## Purview Starter Kit Notes:
 
