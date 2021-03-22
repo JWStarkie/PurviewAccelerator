@@ -14,6 +14,7 @@
 - add creator of resources to Purview IAM (Access Control)
 - make location a parameter
 - pass parameter of name and location down to TemplatePurview.Json
+- make one click deployment 
 
 ## Purview Starter Kit Notes:
 
