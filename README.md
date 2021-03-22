@@ -13,6 +13,7 @@
 - add synapse to purview (link synapse and purview using credentials/managed identity)
 - add creator of resources to Purview IAM (Access Control)
 - make location a parameter
+- pass parameter of name and location down to TemplatePurview.Json
 
 ## Purview Starter Kit Notes:
 
