@@ -7,7 +7,8 @@
     [string]$StorageBlobName = $ResourceGroup + "adcblob",
     [string]$AdlsGen2Name = $ResourceGroup + "adcadls",
     [string]$DataFactoryName = $ResourceGroup + "adcfactory",
-    [switch]$ConnectToAzure = $false
+    [switch]$ConnectToAzure = $false,
+    [string]$SynapseWorkspaceName = $ResourceGroup + "synapsews"
 )
 
 if ($ConnectToAzure -eq $true) {
@@ -32,5 +33,7 @@ else {
                  -SubscriptionId $SubscriptionId `
                  -AzureStorageResourceGroup $ResourceGroup `
                  -AzureStorageGen2ResourceGroup $ResourceGroup `
-                 -CatalogResourceGroup $CatalogResourceGroup
+                 -CatalogResourceGroup $CatalogResourceGroup `
+                 -SynapseWorkspaceName $SynapseWorkspaceName `
+                 -SynapseResourceGroup $ResourceGroup
 }

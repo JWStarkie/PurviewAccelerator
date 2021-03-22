@@ -19,7 +19,15 @@
     [string]$AzureStorageGen2Location= "East Us",
     [switch]$GenerateDataForAzureStorage = $false,
     [switch]$GenerateDataForAzureStoragetemp = $false,
-    [switch]$CopyDataFromAzureStorageToGen2 = $false
+    [switch]$CopyDataFromAzureStorageToGen2 = $false,
+    [string]$SqlUser = "demogod",
+    [string]$SqlPassword = "Password123!",
+    [string]$SynapseWorkspaceName,
+    [string]$SynapseResourceGroup,
+    [string]$FileShareName = "raw",
+    [string]$Region = "East Us",
+    [string]$RoleDef = "Storage Blob Data Contributor",
+    [string]$SynapseScope = "/subscriptions/$SubscriptionId/resourceGroups/$SynapseResourceGroup/providers/Microsoft.Storage/storageAccounts/$AzureStorageGen2AccountName"
 )
 
 ##############################################################################
@@ -470,6 +478,30 @@ if ($CreateAzureStorageGen2Account -eq $true) {
                                 -Location $AzureStorageGen2Location `
                                 -EnableHierarchicalNamespace
 }
+
+## Synapse creation
+$Cred = New-Object -TypeName System.Management.Automation.PSCredential ($SqlUser, (ConvertTo-SecureString $SqlPassword -AsPlainText -Force))
+
+$WorkspaceParams = @{
+  Name = $SynapseWorkspaceName
+  ResourceGroupName = $SynapseResourceGroup
+  DefaultDataLakeStorageAccountName = $AzureStorageGen2AccountName
+  DefaultDataLakeStorageFilesystem = $FileShareName
+  SqlAdministratorLoginCredential = $Cred
+  Location = $Region
+}
+New-AzSynapseWorkspace @WorkspaceParams
+
+$SynapseInfo = Get-AzSynapseWorkspace -ResourceGroupName $SynapseResourceGroup -Name $SynapseWorkspaceName
+
+
+$RoleAssignmentParams = @{
+  # SignInName = $SynapseWorkspaceName
+  ObjectId = $SynapseInfo.Identity.PrincipalId
+  RoleDefinitionName = $RoleDef
+  Scope = $SynapseScope
+}
+New-AzRoleAssignment @RoleAssignmentParams
 
 ##
 ## Upload data to the Azure Data Account
