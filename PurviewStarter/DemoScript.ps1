@@ -480,6 +480,10 @@ if ($CreateAzureStorageGen2Account -eq $true) {
 }
 
 ## Synapse creation
+if(-not (Get-Module Az.Synapse)) {
+    Install-Module -Name Az.Synapse -RequiredVersion 0.1.0
+}
+
 $Cred = New-Object -TypeName System.Management.Automation.PSCredential ($SqlUser, (ConvertTo-SecureString $SqlPassword -AsPlainText -Force))
 
 $WorkspaceParams = @{
