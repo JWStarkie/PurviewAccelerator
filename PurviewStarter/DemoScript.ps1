@@ -93,7 +93,7 @@ $synapseLinkedServiceDefinitions = @"
 }
 "@
 
-$synapseLinkedServiceDefinitions = @"
+$keyVaultLinkedServiceDefinitions = @"
 {
     "name": "<<keyvaultlinkedservicename>>",
     "properties": {
