@@ -73,6 +73,39 @@ $storageGen2LinkedServiceDefinition = @"
 }
 "@
 
+$synapseLinkedServiceDefinitions = @"
+{
+    "name": "<<name>>",
+    "properties": {
+        "annotations": [],
+        "type": "AzureSqlDW",
+        "typeProperties": {
+            "connectionString": {
+                "type": "AzureKeyVaultSecret",
+                "store": {
+                    "referenceName": "<<keyvaultlinkedservicename>>",
+                    "type": "LinkedServiceReference"
+                },
+                "secretName": "<<secretname>>"
+            }
+        }
+    }
+}
+"@
+
+$synapseLinkedServiceDefinitions = @"
+{
+    "name": "<<keyvaultlinkedservicename>>",
+    "properties": {
+        "annotations": [],
+        "type": "AzureKeyVault",
+        "typeProperties": {
+            "baseUrl": "https://<<keyvaultname>>.vault.azure.net/"
+        }
+    }
+}
+"@
+
 $azureStorageBlobDataSet = @"
 {
     "name": "<<datasetName>>",
