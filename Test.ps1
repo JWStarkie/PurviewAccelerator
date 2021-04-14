@@ -16,3 +16,5 @@ if(-not (Get-InstalledModule Az.Synapse)) {
     Start-Job -Name InstallAzSynapse -ScriptBlock { Install-Module Az.Synapse }
     Wait-Job -Name InstallAzSynapse
 }
+
+# To get Tenant Id -  "tenantId": "[subscription().tenantId]",
