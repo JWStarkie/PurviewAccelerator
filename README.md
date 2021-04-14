@@ -10,7 +10,7 @@
 
 - add synapse, done
 - add copy pipeline from gen2 to synapse (link synapse and adf using credentials/managed identity)
-- add synapse to purview (link synapse and purview using credentials/managed identity)
+- add purview managed identity to synapse as db_owner
 - add creator of resources to Purview IAM (Access Control)
 - make location a parameter
 - pass parameter of name and location down to TemplatePurview.Json
