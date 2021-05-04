@@ -7,6 +7,7 @@
     [string]$StorageBlobName = $ResourceGroup + "adcblob",
     [string]$AdlsGen2Name = $ResourceGroup + "adcadls",
     [string]$DataFactoryName = $ResourceGroup + "adcfactory",
+    [string]$KeyVaultName = $ResourceGroup + "kv",
     [switch]$ConnectToAzure = $false,
     [string]$SynapseWorkspaceName = $ResourceGroup + "synapsews"
 )
@@ -34,6 +35,7 @@ else {
                  -AzureStorageResourceGroup $ResourceGroup `
                  -AzureStorageGen2ResourceGroup $ResourceGroup `
                  -CatalogResourceGroup $CatalogResourceGroup `
+                 -KeyVaultName $KeyVaultName `
                  -SynapseWorkspaceName $SynapseWorkspaceName `
                  -SynapseResourceGroup $ResourceGroup
 }
