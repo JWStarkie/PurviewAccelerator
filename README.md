@@ -25,6 +25,8 @@
 - Pushes the associated lineage from ADF to Purview
 
 
-## notes 
-need  to run below command in windows powershell prior to running the script
-Install-Module AzureAD
+## Notes 
+
+- need  to run below command in windows powershell prior to running the script
+
+- `Install-Module AzureAD`
