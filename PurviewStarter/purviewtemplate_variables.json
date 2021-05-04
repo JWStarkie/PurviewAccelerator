@@ -1,0 +1,29 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "name": "[concat(resourceGroup().name, 'pv')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Purview/accounts",
+      "apiVersion": "2020-12-01-preview",
+      "name": "[variables('name')]",
+      "location": "[variables('location')]",
+      "dependsOn": [],
+      "tags": { "bypass": "true" },
+      "sku": {
+        "name": "Standard",
+        "capacity": 4
+      },
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "publicNetworkAccess": "Enabled"
+      }
+    }
+  ],
+  "outputs": {}
+}
