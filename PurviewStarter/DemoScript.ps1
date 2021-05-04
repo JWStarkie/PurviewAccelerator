@@ -72,6 +72,39 @@ $storageGen2LinkedServiceDefinition = @"
     }
 }
 "@
+###SynapseLinkedServiceinADFDef
+$synapseLinkedServiceDefinitions = @"
+{
+    "name": "<<name>>",
+    "properties": {
+        "annotations": [],
+        "type": "AzureSqlDW",
+        "typeProperties": {
+            "connectionString": {
+                "type": "AzureKeyVaultSecret",
+                "store": {
+                    "referenceName": "<<keyvaultlinkedservicename>>",
+                    "type": "LinkedServiceReference"
+                },
+                "secretName": "<<secretname>>"
+            }
+        }
+    }
+}
+"@
+##KeyVaultLinkedServiceinADFDef
+$keyVaultLinkedServiceDefinitions = @"
+{
+    "name": "<<keyvaultlinkedservicename>>",
+    "properties": {
+        "annotations": [],
+        "type": "AzureKeyVault",
+        "typeProperties": {
+            "baseUrl": "https://<<keyvaultname>>.vault.azure.net/"
+        }
+    }
+}
+"@
 
 $azureStorageBlobDataSet = @"
 {
@@ -392,7 +425,7 @@ function AddDataFactoryManagedIdentityToCatalog (
     # Purview Contributor
     $RoleId = "8a3c28859b384fd29d9991af537c1347"
     # Add delay so that service principal is available in the tenant before invoking the function below
-    Start-Sleep -Seconds 60
+    Start-Sleep -Seconds 90
     Write-Output "subscriptionId:$subscriptionId catalogResourceGroup:$catalogResourceGroup catalogName=$catalogName"
     $FullPurviewAccountScope = "/subscriptions/$subscriptionId/resourceGroups/$catalogResourceGroup/providers/Microsoft.Purview/accounts/$catalogName"
     New-AzRoleAssignment -ObjectId $servicePrincipalId -RoleDefinitionId $RoleId -Scope $FullPurviewAccountScope
@@ -403,22 +436,22 @@ function AddDataFactoryManagedIdentityToCatalog (
 ## main()
 ##
 ##############################################################################
-if(-not (Get-Module Az.Accounts)) {
-    Import-Module Az.Accounts
-}
+# if(-not (Get-Module Az.Accounts)) {
+#     Import-Module Az.Accounts
+# }
 
-if ($ConnectToAzure -eq $true) {
-    Connect-AzAccount
-}
+# if ($ConnectToAzure -eq $true) {
+#     Connect-AzAccount
+# }
 
-##
-## Select the subscription we'll be operating on.
-##
-if ($TenantId) {
-    Select-AzSubscription -Subscription $SubscriptionId -TenantId $TenantId
-} else {
-    Write-Output "Unable to select the subscription. Please provide the tenant Id and subscription you're connecting to"
-}
+# ##
+# ## Select the subscription we'll be operating on.
+# ##
+# if ($TenantId) {
+#     Select-AzSubscription -Subscription $SubscriptionId -TenantId $TenantId
+# } else {
+#     Write-Output "Unable to select the subscription. Please provide the tenant Id and subscription you're connecting to"
+# }
 
 
 
@@ -442,7 +475,7 @@ if ($CreateAzureStorageAccount -eq $true) {
                                 -Location $AzureStorageLocation
 }
 
-New-AzResourceGroupDeployment -ResourceGroupName $ResourceGroup -TemplateFile ".\purviewtemplate.json"
+New-AzResourceGroupDeployment -ResourceGroupName $ResourceGroup -TemplateFile ".\purviewtemplate_variables.json"
 
 ##
 ## Check to see if we are going to update the ADF account
@@ -494,6 +527,14 @@ $WorkspaceParams = @{
   SqlAdministratorLoginCredential = $Cred
   Location = $Region
 }
+
+### Install Az.Synapse Powershell cmdlet module
+if(-not (Get-InstalledModule Az.Synapse)) {
+    Write-Output Installing Az.Synapse Module
+    Start-Job -Name InstallAzSynapse -ScriptBlock { Install-Module Az.Synapse }
+    Wait-Job -Name InstallAzSynapse
+}
+
 New-AzSynapseWorkspace @WorkspaceParams
 
 $SynapseInfo = Get-AzSynapseWorkspace -ResourceGroupName $SynapseResourceGroup -Name $SynapseWorkspaceName
