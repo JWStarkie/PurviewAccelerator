@@ -73,6 +73,40 @@ $storageGen2LinkedServiceDefinition = @"
 }
 "@
 
+###SynapseLinkedServiceinADFDef
+$synapseLinkedServiceDefinitions = @"
+{
+    "name": "<<name>>",
+    "properties": {
+        "annotations": [],
+        "type": "AzureSqlDW",
+        "typeProperties": {
+            "connectionString": {
+                "type": "AzureKeyVaultSecret",
+                "store": {
+                    "referenceName": "<<keyvaultlinkedservicename>>",
+                    "type": "LinkedServiceReference"
+                },
+                "secretName": "<<secretname>>"
+            }
+        }
+    }
+}
+"@
+##KeyVaultLinkedServiceinADFDef
+$keyVaultLinkedServiceDefinitions = @"
+{
+    "name": "<<keyvaultlinkedservicename>>",
+    "properties": {
+        "annotations": [],
+        "type": "AzureKeyVault",
+        "typeProperties": {
+            "baseUrl": "https://<<keyvaultname>>.vault.azure.net/"
+        }
+    }
+}
+"@
+
 $azureStorageBlobDataSet = @"
 {
     "name": "<<datasetName>>",
@@ -403,14 +437,7 @@ function AddDataFactoryManagedIdentityToCatalog (
 ## main()
 ##
 ##############################################################################
-if(-not (Get-Module Az.Accounts)) {
-    Import-Module Az.Accounts
-}
-
-if ($ConnectToAzure -eq $true) {
-    Connect-AzAccount
-}
-
+                                                                                                                                                                                                                                                  
 ##
 ## Select the subscription we'll be operating on.
 ##
@@ -442,6 +469,7 @@ if ($CreateAzureStorageAccount -eq $true) {
                                 -Location $AzureStorageLocation
 }
 
+## purview creation 
 New-AzResourceGroupDeployment -ResourceGroupName $ResourceGroup -TemplateFile ".\purviewtemplate.json"
 
 ##
@@ -480,6 +508,11 @@ if ($CreateAzureStorageGen2Account -eq $true) {
 }
 
 ## Synapse creation
+
+if(-not (Get-Module Az.Synapse)) {
+    Install-Module -Name Az.Synapse -RequiredVersion 0.1.0
+}
+
 $Cred = New-Object -TypeName System.Management.Automation.PSCredential ($SqlUser, (ConvertTo-SecureString $SqlPassword -AsPlainText -Force))
 
 $WorkspaceParams = @{
