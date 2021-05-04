@@ -28,6 +28,7 @@
     [string]$Region = "East Us",
     [string]$RoleDef = "Storage Blob Data Contributor",
     [string]$KeyVaultName ,
+    [string]$ObjectIdpv = $(Get-AzureADServicePrincipal -Filter "DisplayName eq '$CatalogName'").ObjectId,
     [string]$SynapseScope = "/subscriptions/$SubscriptionId/resourceGroups/$SynapseResourceGroup/providers/Microsoft.Storage/storageAccounts/$AzureStorageGen2AccountName"
 )
 
@@ -513,9 +514,15 @@ if ($CreateAzureStorageGen2Account -eq $true) {
                                 -EnableHierarchicalNamespace
 }
 
+# Allow users to authenticate to allow for AD to connect for the Service principle authentication used by Purview in KeyVault.
+Import-Module AzureAD -UseWindowsPowerShell
+Connect-AzureAD
+
+$usercontext = get-azcontext
 
 New-AzKeyVault -Name $KeyVaultName -ResourceGroupName $ResourceGroup -Location "East US"
-Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -UserPrincipalName "chmunyas@microsoft.com" -PermissionsToSecrets get,set,delete
+Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -UserPrincipalName $usercontext.account.id -PermissionsToSecrets get,set,delete,list
+Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -ObjectId $ObjectIdpv -PermissionsToSecrets get,set,delete,list
 $secretvalue = ConvertTo-SecureString "Password123!" -AsPlainText -Force
 Set-AzKeyVaultSecret -VaultName $KeyVaultName -Name "SQLPassword" -SecretValue $secretvalue
 
