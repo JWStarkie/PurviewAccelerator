@@ -9,11 +9,11 @@
 ## Things to do:
 
 - add synapse, done
+- add purview managed identity to synapse as db_owner/ or KV, done
+- pass parameter of name and location down to TemplatePurview.Json, done
 - add copy pipeline from gen2 to synapse (link synapse and adf using credentials/managed identity)
-- add purview managed identity to synapse as db_owner/ or KV
 - add creator of resources to Purview IAM (Access Control)
 - make location a parameter
-- pass parameter of name and location down to TemplatePurview.Json
 - make one click deployment 
 
 ## Purview Starter Kit Notes:
