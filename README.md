@@ -23,3 +23,8 @@
 - Creates ADF and associates the instance to Purview
 - Sets up and triggers a copy activity pipeline between the Blob storage and ADLS gen2 accounts
 - Pushes the associated lineage from ADF to Purview
+
+
+## notes 
+need  to run below command in windows powershell prior to running the script
+Install-Module AzureAD
