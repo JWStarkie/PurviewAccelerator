@@ -27,6 +27,7 @@
     [string]$FileShareName = "raw",
     [string]$Region = "East Us",
     [string]$RoleDef = "Storage Blob Data Contributor",
+    [string]$KeyVaultName ,
     [string]$SynapseScope = "/subscriptions/$SubscriptionId/resourceGroups/$SynapseResourceGroup/providers/Microsoft.Storage/storageAccounts/$AzureStorageGen2AccountName"
 )
 
@@ -511,6 +512,12 @@ if ($CreateAzureStorageGen2Account -eq $true) {
                                 -Location $AzureStorageGen2Location `
                                 -EnableHierarchicalNamespace
 }
+
+
+New-AzKeyVault -Name $KeyVaultName -ResourceGroupName $ResourceGroup -Location "East US"
+Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -UserPrincipalName "chmunyas@microsoft.com" -PermissionsToSecrets get,set,delete
+$secretvalue = ConvertTo-SecureString "Password123!" -AsPlainText -Force
+Set-AzKeyVaultSecret -VaultName $KeyVaultName -Name "SQLPassword" -SecretValue $secretvalue
 
 ## Synapse creation
 if(-not (Get-Module Az.Synapse)) {

@@ -7,6 +7,7 @@
     [string]$StorageBlobName = $ResourceGroup + "adcblob",
     [string]$AdlsGen2Name = $ResourceGroup + "adcadls",
     [string]$DataFactoryName = $ResourceGroup + "adcfactory",
+    [string]$KeyVaultName = $ResourceGroup + "kv",
     [switch]$ConnectToAzure = $false,
     [string]$SynapseWorkspaceName = $ResourceGroup + "synapsews"
 )
@@ -26,6 +27,7 @@ if(-not (Get-Module Az.Accounts)) {
     Wait-Job -Name InstallAzAccounts
     Remove-Job -Name InstallAzAccounts
 }
+
 
 if (-not (Get-AzContext)) {
     Write-Output ConnectAzAccount
@@ -53,4 +55,6 @@ if (-not (Get-AzContext)) {
                 -AzureStorageGen2ResourceGroup $ResourceGroup `
                 -CatalogResourceGroup $CatalogResourceGroup `
                 -SynapseWorkspaceName $SynapseWorkspaceName `
+                -KeyVaultName $KeyVaultName `
                 -SynapseResourceGroup $ResourceGroup
+
