@@ -151,6 +151,28 @@ $azureStorageGen2DataSet = @"
 }
 "@
 
+## SynapseDataset, need to revisit schema and table name
+$SynapseDataSet = @"
+{
+    "name": "<<datasetName>>",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "<<linkedServiceName>>",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "AzureSqlDWTable",
+        "typeProperties": {
+            "schema": "<<SchemaName>>",
+            "table": "<<TableName>>"
+            }
+        }
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}
+"@
+
+
 $copyPipeline = @"
 {
     "name": "demo_<<name>>",
@@ -200,6 +222,65 @@ $copyPipeline = @"
         ]
     },
     "type": "Microsoft.DataFactory/factories/pipelines"
+}
+"@
+
+
+
+## copy pipeline from gen2 to synapse
+$copyPipelineGen2Synapse = @"
+{
+    "name": "demogen2Synapse_<<name>>",
+    "properties": {
+        "activities": [
+            {
+                "name": "<<name>>",
+                "type": "Copy",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "source": {
+                        "type": "BinarySource",
+                        "storeSettings": {
+                            "type": "AzureBlobFSReadSettings",
+                            "recursive": true,
+                            "enablePartitionDiscovery": false
+                        }
+                    },
+                    "sink": {
+                        "type": "SqlDWSink",
+                        "allowPolyBase": true,
+                        "polyBaseSettings": {
+                            "rejectValue": 0,
+                            "rejectType": "value",
+                            "useTypeDefault": true
+                        }
+                    },
+                    "enableStaging": false
+                },
+                "inputs": [
+                    {
+                        "referenceName": "<<azureStorageGen2LinkedServiceDataSet>>",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "<<synapseLinkedServiceDataSet>>",
+                        "type": "DatasetReference"
+                    }
+                ]
+            }
+        ],
+        "annotations": []
+    }
 }
 "@
 
