@@ -11,7 +11,6 @@
 )
 
 # Import helper functions script file
-
   . .\HelperFunctions.ps1
 
 ### Install Az Powershell cmdlet module
@@ -85,4 +84,3 @@ Write-Output "Tenant ID: $contextTenantId"
                 -SynapseWorkspaceName $SynapseWorkspaceName `
                 -KeyVaultName $KeyVaultName `
                 -SynapseResourceGroup $ResourceGroup
-
