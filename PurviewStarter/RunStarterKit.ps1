@@ -1,7 +1,5 @@
 ﻿param (
     [string]$CatalogName = $ResourceGroup + "pv",
-    [string]$TenantId,
-    [string]$SubscriptionId,
     [string]$ResourceGroup,
     [string]$CatalogResourceGroup = $ResourceGroup,
     [string]$StorageBlobName = $ResourceGroup + "adcblob",
@@ -12,30 +10,60 @@
     [string]$SynapseWorkspaceName = $ResourceGroup + "synapsews"
 )
 
+# Import helper functions script file
+
+  . .\HelperFunctions.ps1
+
 ### Install Az Powershell cmdlet module
-if(-not (Get-InstalledModule -Name "Az")) {
-    Write-Output Installing Az Module
-    Start-Job -Name InstallAzModule -ScriptBlock { Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force }
-    Wait-Job -Name InstallAzModule
-    Remove-Job -Name InstallAzModule
+Write-Output "Checking for AzureAD Module."
+if(-not (Find-Module -Name "AzureAD")) {
+    InstallAzureADModule
+} else {
+    Write-Output "AzureAD Module is already installed."
+}
+
+### Install Az Powershell cmdlet module
+Write-Output "Checking for Az Module."
+if(-not (Find-Module -Name "Az")) {
+    InstallAZModule
+} else {
+    Write-Output "Az Module is already installed."
 }
 
 ### Install Az.Accounts Powershell cmdlet module
-if(-not (Get-Module Az.Accounts)) {
-    Write-Output Installing Az.Accounts Module
-    Start-Job -Name InstallAzAccounts -ScriptBlock { Import-Module Az.Accounts }
-    Wait-Job -Name InstallAzAccounts
-    Remove-Job -Name InstallAzAccounts
+Write-Output "Checking for Az.Accounts Module."
+if(-not (Find-Module Az.Accounts)) {
+    InstallAZAccountsModule
+}  else {
+    Write-Output "Az.Accounts Module is already imported."
 }
 
-
+### Connect to AzAccount if not connected - once authenticated, display selected subscription and confirm with user the selection.
 if (-not (Get-AzContext)) {
-    Write-Output ConnectAzAccount
-    Start-Job -Name ConnectToAzure -ScriptBlock { Connect-AzAccount }
-    Wait-Job -Name ConnectToAzure
-    Remove-Job -Name ConnectToAzure
+    ConnectAzAccount
+} else {
     Get-AzContext
 }
+
+### Confirmation validation for user to confirm subscription.
+while ($finalres -ne 0) {
+    $finalres = New-Menu -question "Do you wish to choose the Subscription selected above?"
+    if($finalres -eq 1){
+        #  Get-AzContext -ListAvailable
+        Get-AzSubscription
+        Write-Output "Please type the FULL and COMPLETE name of the subscription you would like to use:"
+        $userInput = Read-Host
+        Set-AzContext -SubscriptionName "$userInput"
+    }
+}
+
+Write-Output "Subscription selection confirmed:"
+$contextInfo = Get-AzContext
+$contextSubscriptionId = $contextInfo.Subscription.Id
+$contextTenantId = $contextInfo.Tenant.Id
+Write-Output "Subscription Name" $contextInfo.Subscription.Name
+Write-Output "Subscription ID: $contextSubscriptionId"
+Write-Output "Tenant ID: $contextTenantId" 
 
 .\demoscript.ps1 -CreateAdfAccountIfNotExists `
                 -UpdateAdfAccountTags `
@@ -49,8 +77,8 @@ if (-not (Get-AzContext)) {
                 -CreateAzureStorageGen2Account `
                 -AzureStorageGen2AccountName $AdlsGen2Name `
                 -CopyDataFromAzureStorageToGen2 `
-                -TenantId $TenantId `
-                -SubscriptionId $SubscriptionId `
+                -TenantId $contextTenantId `
+                -SubscriptionId $contextSubscriptionId `
                 -AzureStorageResourceGroup $ResourceGroup `
                 -AzureStorageGen2ResourceGroup $ResourceGroup `
                 -CatalogResourceGroup $CatalogResourceGroup `
