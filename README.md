@@ -8,13 +8,13 @@
 
 ## Things to do:
 
-- add synapse, __done__
-- add purview managed identity to synapse as db_owner/ or KV, __done__
-- pass parameter of name and location down to TemplatePurview.Json, __done__
+- add synapse, **done**
+- add purview managed identity to synapse as db_owner/ or KV, **done**
+- pass parameter of name and location down to TemplatePurview.Json, **done**
 - add copy pipeline from gen2 to synapse (link synapse and adf using credentials/managed identity)
 - add creator of resources to Purview IAM (Access Control)
 - make location a parameter
-- make one click deployment 
+- make one click deployment
 
 ## Purview Starter Kit Notes:
 
@@ -24,9 +24,17 @@
 - Sets up and triggers a copy activity pipeline between the Blob storage and ADLS gen2 accounts
 - Pushes the associated lineage from ADF to Purview
 
+## Notes
 
-## Notes 
-
-- need  to run below command in windows powershell prior to running the script
+- need to run below command in windows powershell prior to running the script
 
 - `Install-Module AzureAD`
+
+- If issues running scripts on your machine and you get the following error:
+
+`+ CategoryInfo : SecurityError: (:) [], PSSecurityException`
+`+ FullyQualifiedErrorId : UnauthorizedAccess`
+
+- Run following script to grant permissions:
+
+- `Set-ExecutionPolicy -ExecutionPolicy UnRestricted -Scope CurrentUser`
