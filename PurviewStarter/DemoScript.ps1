@@ -258,12 +258,14 @@ function UpdateAzureDataFactoryV2 {
             Write-Output "Data Factory Identity not found, unable to update the catalog with the ADF managed identity"
         }
         else {
-            Write-Output "Setting the Managed Identity $dataFactory.Identity.PrincipalId on the Catalog: $CatalogName"
-            Start-Sleep -Seconds 60
-            AddDataFactoryManagedIdentityToCatalog -servicePrincipalId $dataFactory.Identity.PrincipalId `
-                -catalogName $CatalogName `
-                -subscriptionId $SubscriptionId `
-                -catalogResourceGroup $CatalogResourceGroup
+            return $dataFactory
+            # Start-Sleep -Seconds 60
+            # $dataFactoryPrincipalId = $dataFactory.Identity.PrincipalId
+            # Write-Output "Setting the Managed Identity $dataFactoryPrincipalId on the Catalog: $CatalogName"
+            # AddDataFactoryManagedIdentityToCatalog -servicePrincipalId $dataFactoryPrincipalId `
+            #     -catalogName $CatalogName `
+            #     -subscriptionId $SubscriptionId `
+            #     -catalogResourceGroup $CatalogResourceGroup
         }
     }
     else {
@@ -424,11 +426,13 @@ function AddDataFactoryManagedIdentityToCatalog (
     [string] $catalogName,
     [string] $subscriptionId,
     [string] $catalogResourceGroup) {
+    # Add delay so that service principal is available in the tenant before invoking the function below
+    # Write-Output "Second sleep started."
+    # Start-Sleep -Seconds 60
+    # Write-Output "Second sleep ended."
+    Write-Output "subscriptionId:$subscriptionId catalogResourceGroup:$catalogResourceGroup catalogName=$catalogName"
     # Purview Contributor
     $RoleId = "8a3c28859b384fd29d9991af537c1347"
-    # Add delay so that service principal is available in the tenant before invoking the function below
-    Start-Sleep -Seconds 60
-    Write-Output "subscriptionId:$subscriptionId catalogResourceGroup:$catalogResourceGroup catalogName=$catalogName"
     $FullPurviewAccountScope = "/subscriptions/$subscriptionId/resourceGroups/$catalogResourceGroup/providers/Microsoft.Purview/accounts/$catalogName"
     New-AzRoleAssignment -ObjectId $servicePrincipalId -RoleDefinitionId $RoleId -Scope $FullPurviewAccountScope
 }
@@ -459,6 +463,8 @@ if ($CreateAzureStorageAccount -eq $true) {
 
 Write-Output "Blob Storage Account Created"
 
+Start-Sleep -Seconds 60
+
 New-AzResourceGroupDeployment -ResourceGroupName $ResourceGroup -TemplateFile ".\purviewtemplate_variables.json"
 
 Write-Output "Purview Account Created"
@@ -476,7 +482,7 @@ if ($UpdateAdfAccountTags -eq $true) {
     if (!$DatafactoryResourceGroup) {
         throw "Data Factory Account Resource Group needs to be specified"
     }
-    UpdateAzureDataFactoryV2
+    $createdDataFactory = UpdateAzureDataFactoryV2
 }
 
 Write-Output "Data Factory Account Created"
@@ -502,9 +508,11 @@ if ($CreateAzureStorageGen2Account -eq $true) {
 
 Write-Output "ADLS Storage Account Created"
 
-$ObjectIdpv = (Get-AzADServicePrincipal -SearchString "jopurvacc4pv").Id
+$ObjectIdpv = (Get-AzADServicePrincipal -SearchString $CatalogName).Id
+Write-Output $ObjectIdpv
 
 $usercontextAccountId = (Get-AzContext).account.id
+Write-Output $usercontextAccountId
 
 New-AzKeyVault -Name $KeyVaultName -ResourceGroupName $ResourceGroup -Location "East US"
 Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -UserPrincipalName $usercontextAccountId -PermissionsToSecrets get, set, delete, list
@@ -540,6 +548,16 @@ $RoleAssignmentParams = @{
 New-AzRoleAssignment @RoleAssignmentParams
 
 Write-Output "Synapse Workspace Account Created"
+
+# Doing ADF role assignment here to prevent PrincipalId not found in directory error.
+Write-Output "RoleAssignments in progress."
+
+$dataFactoryPrincipalId = $createdDataFactory.Identity.PrincipalId
+Write-Output "Setting the Managed Identity $dataFactoryPrincipalId on the Catalog: $CatalogName"
+AddDataFactoryManagedIdentityToCatalog -servicePrincipalId $dataFactoryPrincipalId `
+    -catalogName $CatalogName `
+    -subscriptionId $SubscriptionId `
+    -catalogResourceGroup $CatalogResourceGroup
 
 ##
 ## Upload data to the Azure Data Account

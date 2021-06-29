@@ -21,6 +21,14 @@ else {
 # Import helper functions script file
 . .\HelperFunctions.ps1
 
+# Allow users to authenticate to allow for AD to connect for the Service principle authentication used by Purview in KeyVault.
+Write-Output "Connect to AzureAD"
+
+Import-Module AzureAD 
+Connect-AzureAD
+
+Write-Output "After AD Connection"
+
 ### Install AzureAD Powershell cmdlet module
 Write-Output "Checking for AzureAD Module."
 if (-not (Get-InstalledModule -Name "AzureAD")) {
@@ -56,14 +64,6 @@ if (-not (Get-InstalledModule Az.Synapse)) {
 else {
     Write-Output "Az.Synapse Module is already installed."
 }
-
-# Allow users to authenticate to allow for AD to connect for the Service principle authentication used by Purview in KeyVault.
-Write-Output "Connect to AzureAD"
-
-Import-Module AzureAD 
-Connect-AzureAD
-
-Write-Output "After AD Connection"
 
 ### Connect to AzAccount if not connected - once authenticated, display selected subscription and confirm with user the selection.
 if (-not (Get-AzContext)) {
