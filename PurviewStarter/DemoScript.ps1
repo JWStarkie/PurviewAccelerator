@@ -502,12 +502,12 @@ if ($CreateAzureStorageGen2Account -eq $true) {
 
 Write-Output "ADLS Storage Account Created"
 
-$ObjectIdpv = $(Get-AzureADServicePrincipal -Filter "DisplayName eq '$CatalogName'").ObjectId,
+$ObjectIdpv = (Get-AzADServicePrincipal -SearchString "jopurvacc4pv").Id
 
-$usercontext = get-azcontext
+$usercontextAccountId = (Get-AzContext).account.id
 
 New-AzKeyVault -Name $KeyVaultName -ResourceGroupName $ResourceGroup -Location "East US"
-Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -UserPrincipalName $usercontext.account.id -PermissionsToSecrets get, set, delete, list
+Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -UserPrincipalName $usercontextAccountId -PermissionsToSecrets get, set, delete, list
 Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -ObjectId $ObjectIdpv -PermissionsToSecrets get, set, delete, list
 $secretvalue = ConvertTo-SecureString "Password123!" -AsPlainText -Force
 Set-AzKeyVaultSecret -VaultName $KeyVaultName -Name "SQLPassword" -SecretValue $secretvalue

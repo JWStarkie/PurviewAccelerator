@@ -57,14 +57,6 @@ else {
     Write-Output "Az.Synapse Module is already installed."
 }
 
-### Connect to AzAccount if not connected - once authenticated, display selected subscription and confirm with user the selection.
-if (-not (Get-AzContext)) {
-    ConnectAzAccount
-}
-else {
-    Get-AzContext
-}
-
 # Allow users to authenticate to allow for AD to connect for the Service principle authentication used by Purview in KeyVault.
 Write-Output "Connect to AzureAD"
 
@@ -72,6 +64,14 @@ Import-Module AzureAD
 Connect-AzureAD
 
 Write-Output "After AD Connection"
+
+### Connect to AzAccount if not connected - once authenticated, display selected subscription and confirm with user the selection.
+if (-not (Get-AzContext)) {
+    ConnectAzAccount
+}
+else {
+    Get-AzContext
+}
 
 ### Confirmation validation for user to confirm subscription.
 while ($finalres -ne 0) {
