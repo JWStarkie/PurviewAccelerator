@@ -1,24 +1,24 @@
 using namespace System.Management.Automation.Host
 
-Function InstallAzureADModule (){
+Function InstallAzureADModule () {
     Write-Output "Installing AzureAD Module. Please follow instructions on the pop-up window to complete this step."
-    Install-Module -Name AzureAD -Force
+    Install-Module -Name AzureAD -Scope CurrentUser -Force
     Write-Output "AzureAD Module install complete."
 }
 
-Function InstallAZModule (){
+Function InstallAZModule () {
     Write-Output "Installing Az Module. Please wait for completion notification."
-    Install-Module -Name Az -Force
+    Install-Module -Name Az -Scope CurrentUse -Force
     Write-Output "Az Module install complete."
 }
 
-Function InstallAZAccountsModule (){
+Function InstallAZAccountsModule () {
     Write-Output "Installing Az Module. Please wait for completion notification."
-    Import-Module -Name Az.Accounts -Force
+    Import-Module -Name Az.Accounts -Scope CurrentUse -Force
     Write-Output "Az Module install complete."
 }
 
-Function ConnectAzAccount (){
+Function ConnectAzAccount () {
     Write-Output "Connecting to Azure Account. Please follow instructions on the pop-up window to complete this step."
     Write-Output ConnectAzAccount
     Connect-AzAccount
