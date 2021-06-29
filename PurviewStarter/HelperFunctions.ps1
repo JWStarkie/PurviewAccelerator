@@ -8,13 +8,13 @@ Function InstallAzureADModule () {
 
 Function InstallAZModule () {
     Write-Output "Installing Az Module. Please wait for completion notification."
-    Install-Module -Name Az -Scope CurrentUse -Force
+    Install-Module -Name Az -Scope CurrentUser -Force
     Write-Output "Az Module install complete."
 }
 
 Function InstallAZAccountsModule () {
     Write-Output "Installing Az Module. Please wait for completion notification."
-    Import-Module -Name Az.Accounts -Scope CurrentUse -Force
+    Import-Module -Name Az.Accounts -Scope CurrentUser -Force
     Write-Output "Az Module install complete."
 }
 

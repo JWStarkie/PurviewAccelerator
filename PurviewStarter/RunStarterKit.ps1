@@ -1,14 +1,22 @@
-﻿# param (
-#     [string]$CatalogName = $ResourceGroup + "pv",
-#     [string]$ResourceGroup,
-#     [string]$CatalogResourceGroup = $ResourceGroup,
-#     [string]$StorageBlobName = $ResourceGroup + "adcblob",
-#     [string]$AdlsGen2Name = $ResourceGroup + "adcadls",
-#     [string]$DataFactoryName = $ResourceGroup + "adcfactory",
-#     [string]$KeyVaultName = $ResourceGroup + "kv",
-#     [switch]$ConnectToAzure = $false,
-#     [string]$SynapseWorkspaceName = $ResourceGroup + "synapsews"
-# )
+﻿param (
+    [string]$CatalogName = $ResourceGroup + "pv",
+    [string]$ResourceGroup,
+    [string]$CatalogResourceGroup = $ResourceGroup,
+    [string]$StorageBlobName = $ResourceGroup + "adcblob",
+    [string]$AdlsGen2Name = $ResourceGroup + "adcadls",
+    [string]$DataFactoryName = $ResourceGroup + "adcfactory",
+    [string]$KeyVaultName = $ResourceGroup + "kv",
+    [switch]$ConnectToAzure = $false,
+    [string]$SynapseWorkspaceName = $ResourceGroup + "synapsews"
+)
+
+### Validation to make sure valid resource group name given before deployment process initiated. 
+if ($ResourceGroup -match '[^a-zA-Z0-9]') {
+    Write-Error "$ResourceGroup is not a valid resource group name for this deployment package. It must be between 3 and 24 characters in length and use numbers and lower-case letters only. Please re-run the RunStarterKit.ps1 script with a valid -ResourceGroup name." -ErrorAction Stop
+}
+else {
+    Write-Output "Resource group name validation passed, continuing with deployment scripts!"
+}
 
 # Import helper functions script file
 . .\HelperFunctions.ps1
@@ -68,23 +76,23 @@ Write-Output "Subscription Name" $contextInfo.Subscription.Name
 Write-Output "Subscription ID: $contextSubscriptionId"
 Write-Output "Tenant ID: $contextTenantId" 
 
-# .\demoscript.ps1 -CreateAdfAccountIfNotExists `
-#     -UpdateAdfAccountTags `
-#     -DatafactoryAccountName $DataFactoryName `
-#     -DatafactoryResourceGroup $ResourceGroup `
-#     -CatalogName $CatalogName `
-#     -GenerateDataForAzureStorage `
-#     -GenerateDataForAzureStoragetemp `
-#     -AzureStorageAccountName $StorageBlobName `
-#     -CreateAzureStorageAccount `
-#     -CreateAzureStorageGen2Account `
-#     -AzureStorageGen2AccountName $AdlsGen2Name `
-#     -CopyDataFromAzureStorageToGen2 `
-#     -TenantId $contextTenantId `
-#     -SubscriptionId $contextSubscriptionId `
-#     -AzureStorageResourceGroup $ResourceGroup `
-#     -AzureStorageGen2ResourceGroup $ResourceGroup `
-#     -CatalogResourceGroup $CatalogResourceGroup `
-#     -SynapseWorkspaceName $SynapseWorkspaceName `
-#     -KeyVaultName $KeyVaultName `
-#     -SynapseResourceGroup $ResourceGroup
+.\demoscript.ps1 -CreateAdfAccountIfNotExists `
+    -UpdateAdfAccountTags `
+    -DatafactoryAccountName $DataFactoryName `
+    -DatafactoryResourceGroup $ResourceGroup `
+    -CatalogName $CatalogName `
+    -GenerateDataForAzureStorage `
+    -GenerateDataForAzureStoragetemp `
+    -AzureStorageAccountName $StorageBlobName `
+    -CreateAzureStorageAccount `
+    -CreateAzureStorageGen2Account `
+    -AzureStorageGen2AccountName $AdlsGen2Name `
+    -CopyDataFromAzureStorageToGen2 `
+    -TenantId $contextTenantId `
+    -SubscriptionId $contextSubscriptionId `
+    -AzureStorageResourceGroup $ResourceGroup `
+    -AzureStorageGen2ResourceGroup $ResourceGroup `
+    -CatalogResourceGroup $CatalogResourceGroup `
+    -SynapseWorkspaceName $SynapseWorkspaceName `
+    -KeyVaultName $KeyVaultName `
+    -SynapseResourceGroup $ResourceGroup
