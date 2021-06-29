@@ -13,9 +13,15 @@ Function InstallAZModule () {
 }
 
 Function InstallAZAccountsModule () {
-    Write-Output "Installing Az Module. Please wait for completion notification."
+    Write-Output "Installing Az.Accounts Module. Please wait for completion notification."
     Import-Module -Name Az.Accounts -Scope CurrentUser -Force
-    Write-Output "Az Module install complete."
+    Write-Output "Az.Accounts Module install complete."
+}
+
+Function InstallAZSynapseModule () {
+    Write-Output "Installing Az.Synapse Module. Please wait for completion notification."
+    Install-Module -Name Az.Synapse -Scope CurrentUser -Force
+    Write-Output "Az.Synapse Module install complete."
 }
 
 Function ConnectAzAccount () {

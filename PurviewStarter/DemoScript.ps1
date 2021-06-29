@@ -12,11 +12,11 @@
     [switch]$CreateAzureStorageAccount = $false,
     [string]$AzureStorageAccountName,
     [string]$AzureStorageResourceGroup,
-    [string]$AzureStorageLocation= "East Us",
+    [string]$AzureStorageLocation = "East Us",
     [switch]$CreateAzureStorageGen2Account = $false,
     [string]$AzureStorageGen2AccountName,
     [string]$AzureStorageGen2ResourceGroup,
-    [string]$AzureStorageGen2Location= "East Us",
+    [string]$AzureStorageGen2Location = "East Us",
     [switch]$GenerateDataForAzureStorage = $false,
     [switch]$GenerateDataForAzureStoragetemp = $false,
     [switch]$CopyDataFromAzureStorageToGen2 = $false,
@@ -28,7 +28,6 @@
     [string]$Region = "East Us",
     [string]$RoleDef = "Storage Blob Data Contributor",
     [string]$KeyVaultName ,
-    [string]$ObjectIdpv = $(Get-AzureADServicePrincipal -Filter "DisplayName eq '$CatalogName'").ObjectId,
     [string]$SynapseScope = "/subscriptions/$SubscriptionId/resourceGroups/$SynapseResourceGroup/providers/Microsoft.Storage/storageAccounts/$AzureStorageGen2AccountName"
 )
 
@@ -215,10 +214,10 @@ function CreateResourceGroupIfNotExists (
     [string] $resourceGroupName, 
     [string] $resourceLocation) {
     $resourceGroup = Get-AzResourceGroup -Name $resourceGroupName `
-                                         -ErrorAction SilentlyContinue
+        -ErrorAction SilentlyContinue
     if (!$resourceGroup) {
         New-AzResourceGroup -Name $resourceGroupName `
-                            -Location $resourceLocation
+            -Location $resourceLocation
     }
 }
 
@@ -231,11 +230,11 @@ function UpdateAzureDataFactoryV2 {
     CreateResourceGroupIfNotExists $DatafactoryResourceGroup $DatafactoryLocation
     try {
         $dataFactory = Get-AzDataFactoryV2 -Name $DatafactoryAccountName `
-                                           -ResourceGroupName $DatafactoryResourceGroup `
-                                           -ErrorAction SilentlyContinue
+            -ResourceGroupName $DatafactoryResourceGroup `
+            -ErrorAction SilentlyContinue
 
         if ($dataFactory) {
-            Set-AzResource -ResourceId $dataFactory.DataFactoryId -Tag @{catalogUri=$catalogEndpoint} -Force
+            Set-AzResource -ResourceId $dataFactory.DataFactoryId -Tag @{catalogUri = $catalogEndpoint } -Force
             Write-Host "Updated Azure Data Factory to emit lineage info to azure data factory $datafactoryAccountName to $catalogEndpoint"
         }
     }
@@ -247,24 +246,27 @@ function UpdateAzureDataFactoryV2 {
 
     if (!$dataFactory) {
         if ($CreateAdfAccountIfNotExists -eq $true) {
-        $dataFactory = Set-AzDataFactoryV2 -ResourceGroupName $datafactoryResourceGroup `
-                                       -Location $DatafactoryLocation `
-                                       -Name $DatafactoryAccountName `
-                                       -Tag @{catalogUri=$catalogEndpoint}
+            $dataFactory = Set-AzDataFactoryV2 -ResourceGroupName $datafactoryResourceGroup `
+                -Location $DatafactoryLocation `
+                -Name $DatafactoryAccountName `
+                -Tag @{catalogUri = $catalogEndpoint }
         }
     }
 
     if ($dataFactory) {
         if (!$dataFactory.Identity) {
             Write-Output "Data Factory Identity not found, unable to update the catalog with the ADF managed identity"
-        } else {
-            Write-Output "Setting the Managed Identity $dataFactory.Identity.PrincipalId on the Catalog: $CatalogName"
-            AddDataFactoryManagedIdentityToCatalog -servicePrincipalId $dataFactory.Identity.PrincipalId `
-                                                   -catalogName $CatalogName `
-                                                   -subscriptionId $SubscriptionId `
-                                                   -catalogResourceGroup $CatalogResourceGroup
         }
-    } else {
+        else {
+            Write-Output "Setting the Managed Identity $dataFactory.Identity.PrincipalId on the Catalog: $CatalogName"
+            Start-Sleep -Seconds 60
+            AddDataFactoryManagedIdentityToCatalog -servicePrincipalId $dataFactory.Identity.PrincipalId `
+                -catalogName $CatalogName `
+                -subscriptionId $SubscriptionId `
+                -catalogResourceGroup $CatalogResourceGroup
+        }
+    }
+    else {
         Write-Error "Unable to find, or create the ADF account"
     }
 }
@@ -280,19 +282,19 @@ function New-AzureStorageDemoAccount (
     CreateResourceGroupIfNotExists $AzureStorageResourceGroup $AzureStorageLocation
     try {
         $azureStorageAccount = Get-AzStorageAccount -Name $AccountName `
-                                                    -ResourceGroupName $ResourceGroup `
-                                                    -ErrorAction SilentlyContinue
+            -ResourceGroupName $ResourceGroup `
+            -ErrorAction SilentlyContinue
         if (!$azureStorageAccount) {
             $gen2 = $false
             if ($EnableHierarchicalNamespace -eq $true) {
                 $gen2 = $true
             }
             New-AzStorageAccount -Name $AccountName `
-                                    -ResourceGroupName $ResourceGroup `
-                                    -Location $Location `
-                                    -SkuName Standard_LRS `
-                                    -Kind StorageV2 `
-                                    -EnableHierarchicalNamespace $gen2
+                -ResourceGroupName $ResourceGroup `
+                -Location $Location `
+                -SkuName Standard_LRS `
+                -Kind StorageV2 `
+                -EnableHierarchicalNamespace $gen2
         }
 
         if ($EnableHierarchicalNamespace -eq $true) {
@@ -313,14 +315,14 @@ function GetAzureStorageConnectionString (
     [string] $ResourceGroup,
     [switch] $OnlyAccessKey) {
     $azureStorageAccount = Get-AzStorageAccount -Name $AccountName `
-                                                    -ResourceGroupName $ResourceGroup `
-                                                    -ErrorAction SilentlyContinue
+        -ResourceGroupName $ResourceGroup `
+        -ErrorAction SilentlyContinue
     if (!$azureStorageAccount) {
         throw "Azure Storage account $AccountName not found"
     }
     $accessKeys = Get-AzStorageAccountKey -ResourceGroupName $ResourceGroup `
-                                          -Name $AccountName
-    $accessKey = ($accessKeys | Where-Object {$_.KeyName -eq "key1"}).Value
+        -Name $AccountName
+    $accessKey = ($accessKeys | Where-Object { $_.KeyName -eq "key1" }).Value
     if ($OnlyAccessKey -eq $true) {
         return $accessKey
     }
@@ -338,13 +340,13 @@ function CreateLinkedService (
     [string] $dataFactoryName,
     [string] $resourceGroup) {
     Remove-Item "$name.json" -ErrorAction SilentlyContinue
-    $linkedService = (($template -replace "<<name>>","$name") -replace "<<account_key>>","$accessKey") -replace "<<accountName>>","$accountName"
+    $linkedService = (($template -replace "<<name>>", "$name") -replace "<<account_key>>", "$accessKey") -replace "<<accountName>>", "$accountName"
     $linkedService | Out-File "$name.json"
     Set-AzDataFactoryV2LinkedService -DataFactoryName $dataFactoryName `
-                                   -ResourceGroupName $resourceGroup `
-                                   -Name $name `
-                                   -DefinitionFile "$name.json" `
-                                   -Force
+        -ResourceGroupName $resourceGroup `
+        -Name $name `
+        -DefinitionFile "$name.json" `
+        -Force
     Remove-Item "$name.json" -ErrorAction SilentlyContinue
 }
 
@@ -357,16 +359,16 @@ function CreatePipelineAndRunPipeline (
     [string] $azureStorageGen2LinkedServiceDatasetName) {
     $fileName = "pipeline-$name.json"
     Remove-Item $fileName -ErrorAction SilentlyContinue
-    $template = (($pipelineTemplate -replace "<<name>>",$name) -replace "<<azureStorageLinkedServiceDataSet>>", $azureStorageLinkedServiceDatasetName) -replace "<<azureStorageGen2LinkedServiceDataSet>>", $azureStorageGen2LinkedServiceDatasetName
+    $template = (($pipelineTemplate -replace "<<name>>", $name) -replace "<<azureStorageLinkedServiceDataSet>>", $azureStorageLinkedServiceDatasetName) -replace "<<azureStorageGen2LinkedServiceDataSet>>", $azureStorageGen2LinkedServiceDatasetName
     $template | Out-File $fileName
     Set-AzDataFactoryV2Pipeline -Name $name `
-                                -DefinitionFile $fileName `
-                                -ResourceGroupName $dataFactoryResourceGroup `
-                                -DataFactoryName $dataFactoryName `
-                                -Force
+        -DefinitionFile $fileName `
+        -ResourceGroupName $dataFactoryResourceGroup `
+        -DataFactoryName $dataFactoryName `
+        -Force
     $runId = Invoke-AzDataFactoryV2Pipeline -ResourceGroupName $dataFactoryResourceGroup `
-                                            -DataFactoryName $dataFactoryName `
-                                            -PipelineName $name
+        -DataFactoryName $dataFactoryName `
+        -PipelineName $name
     Write-Host "Executing Copy pipeline $runId"
     Remove-Item $fileName -ErrorAction SilentlyContinue
 }
@@ -382,18 +384,17 @@ function CreateDataSet (
     [string] $resourceGroup,
     [string] $template) {
     Remove-Item "$dataSetName.json" -ErrorAction SilentlyContinue
-    $dataSet = (($template -replace "<<datasetName>>","$dataSetName") -replace "<<linkedServiceName>>", "$linkedServiceReference") -replace "<<filesystemname>>","$container"
+    $dataSet = (($template -replace "<<datasetName>>", "$dataSetName") -replace "<<linkedServiceName>>", "$linkedServiceReference") -replace "<<filesystemname>>", "$container"
     $dataSet | Out-File "$dataSetName.json"
     Set-AzDataFactoryV2Dataset -Name $dataSetName `
-                               -DefinitionFile "$dataSetName.json" `
-                               -Force `
-                               -DataFactoryName $dataFactoryName `
-                               -ResourceGroupName $resourceGroup
+        -DefinitionFile "$dataSetName.json" `
+        -Force `
+        -DataFactoryName $dataFactoryName `
+        -ResourceGroupName $resourceGroup
     Remove-Item "$dataSetName.json" -ErrorAction SilentlyContinue
 }
 
-function Get-AzCachedAccessToken()
-{
+function Get-AzCachedAccessToken() {
     $ErrorActionPreference = 'Stop'
     #$azProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
     #if(-not $azProfile.Accounts.Count) {
@@ -410,8 +411,7 @@ function Get-AzCachedAccessToken()
     [Microsoft.Azure.Commands.Common.Authentication.AzureSession]::Instance.AuthenticationFactory.Authenticate($context.Account, $context.Environment, $context.Tenant.Id.ToString(), $null, [Microsoft.Azure.Commands.Common.Authentication.ShowDialog]::Never, $null, "https://projectbabylon.azure.net").AccessToken
 }
 
-function Get-AzBearerToken()
-{
+function Get-AzBearerToken() {
     $ErrorActionPreference = 'Stop'
     ('Bearer {0}' -f (Get-AzCachedAccessToken))
 }
@@ -427,7 +427,7 @@ function AddDataFactoryManagedIdentityToCatalog (
     # Purview Contributor
     $RoleId = "8a3c28859b384fd29d9991af537c1347"
     # Add delay so that service principal is available in the tenant before invoking the function below
-    Start-Sleep -Seconds 90
+    Start-Sleep -Seconds 60
     Write-Output "subscriptionId:$subscriptionId catalogResourceGroup:$catalogResourceGroup catalogName=$catalogName"
     $FullPurviewAccountScope = "/subscriptions/$subscriptionId/resourceGroups/$catalogResourceGroup/providers/Microsoft.Purview/accounts/$catalogName"
     New-AzRoleAssignment -ObjectId $servicePrincipalId -RoleDefinitionId $RoleId -Scope $FullPurviewAccountScope
@@ -438,26 +438,6 @@ function AddDataFactoryManagedIdentityToCatalog (
 ## main()
 ##
 ##############################################################################
-# if(-not (Get-Module Az.Accounts)) {
-#     Import-Module Az.Accounts
-# }
-
-# if ($ConnectToAzure -eq $true) {
-#     Connect-AzAccount
-# }
-
-# ##
-# ## Select the subscription we'll be operating on.
-# ##
-# if ($TenantId) {
-#     Select-AzSubscription -Subscription $SubscriptionId -TenantId $TenantId
-# } else {
-#     Write-Output "Unable to select the subscription. Please provide the tenant Id and subscription you're connecting to"
-# }
-
-
-
-
 
 ##
 ## Check to see if we are going to create a demo azure storage account
@@ -473,11 +453,15 @@ if ($CreateAzureStorageAccount -eq $true) {
         throw "Azure Storage Resource Group needs to be specified"
     }
     New-AzureStorageDemoAccount -AccountName $AzureStorageAccountName `
-                                -ResourceGroup $AzureStorageResourceGroup `
-                                -Location $AzureStorageLocation
+        -ResourceGroup $AzureStorageResourceGroup `
+        -Location $AzureStorageLocation
 }
 
+Write-Output "Blob Storage Account Created"
+
 New-AzResourceGroupDeployment -ResourceGroupName $ResourceGroup -TemplateFile ".\purviewtemplate_variables.json"
+
+Write-Output "Purview Account Created"
 
 ##
 ## Check to see if we are going to update the ADF account
@@ -495,6 +479,8 @@ if ($UpdateAdfAccountTags -eq $true) {
     UpdateAzureDataFactoryV2
 }
 
+Write-Output "Data Factory Account Created"
+
 ##
 ## Check to see if we are going to create a demo ADLS Gen2 account
 ##
@@ -509,44 +495,35 @@ if ($CreateAzureStorageGen2Account -eq $true) {
         throw "Azure Storage Gen2 Resource Group needs to be specified"
     }
     New-AzureStorageDemoAccount -AccountName $AzureStorageGen2AccountName `
-                                -ResourceGroup $AzureStorageGen2ResourceGroup `
-                                -Location $AzureStorageGen2Location `
-                                -EnableHierarchicalNamespace
+        -ResourceGroup $AzureStorageGen2ResourceGroup `
+        -Location $AzureStorageGen2Location `
+        -EnableHierarchicalNamespace
 }
 
-# Allow users to authenticate to allow for AD to connect for the Service principle authentication used by Purview in KeyVault.
-Import-Module AzureAD -UseWindowsPowerShell
-Connect-AzureAD
+Write-Output "ADLS Storage Account Created"
+
+[string]$ObjectIdpv = $(Get-AzureADServicePrincipal -Filter "DisplayName eq '$CatalogName'").ObjectId,
 
 $usercontext = get-azcontext
 
 New-AzKeyVault -Name $KeyVaultName -ResourceGroupName $ResourceGroup -Location "East US"
-Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -UserPrincipalName $usercontext.account.id -PermissionsToSecrets get,set,delete,list
-Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -ObjectId $ObjectIdpv -PermissionsToSecrets get,set,delete,list
+Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -UserPrincipalName $usercontext.account.id -PermissionsToSecrets get, set, delete, list
+Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -ObjectId $ObjectIdpv -PermissionsToSecrets get, set, delete, list
 $secretvalue = ConvertTo-SecureString "Password123!" -AsPlainText -Force
 Set-AzKeyVaultSecret -VaultName $KeyVaultName -Name "SQLPassword" -SecretValue $secretvalue
 
-## Synapse creation
-if(-not (Get-Module Az.Synapse)) {
-    Install-Module -Name Az.Synapse -RequiredVersion 0.1.0
-}
+Write-Output "Key Vault Account Created"
 
+## Synapse creation
 $Cred = New-Object -TypeName System.Management.Automation.PSCredential ($SqlUser, (ConvertTo-SecureString $SqlPassword -AsPlainText -Force))
 
 $WorkspaceParams = @{
-  Name = $SynapseWorkspaceName
-  ResourceGroupName = $SynapseResourceGroup
-  DefaultDataLakeStorageAccountName = $AzureStorageGen2AccountName
-  DefaultDataLakeStorageFilesystem = $FileShareName
-  SqlAdministratorLoginCredential = $Cred
-  Location = $Region
-}
-
-### Install Az.Synapse Powershell cmdlet module
-if(-not (Get-InstalledModule Az.Synapse)) {
-    Write-Output Installing Az.Synapse Module
-    Start-Job -Name InstallAzSynapse -ScriptBlock { Install-Module Az.Synapse }
-    Wait-Job -Name InstallAzSynapse
+    Name                              = $SynapseWorkspaceName
+    ResourceGroupName                 = $SynapseResourceGroup
+    DefaultDataLakeStorageAccountName = $AzureStorageGen2AccountName
+    DefaultDataLakeStorageFilesystem  = $FileShareName
+    SqlAdministratorLoginCredential   = $Cred
+    Location                          = $Region
 }
 
 New-AzSynapseWorkspace @WorkspaceParams
@@ -555,12 +532,14 @@ $SynapseInfo = Get-AzSynapseWorkspace -ResourceGroupName $SynapseResourceGroup -
 
 
 $RoleAssignmentParams = @{
-  # SignInName = $SynapseWorkspaceName
-  ObjectId = $SynapseInfo.Identity.PrincipalId
-  RoleDefinitionName = $RoleDef
-  Scope = $SynapseScope
+    # SignInName = $SynapseWorkspaceName
+    ObjectId           = $SynapseInfo.Identity.PrincipalId
+    RoleDefinitionName = $RoleDef
+    Scope              = $SynapseScope
 }
 New-AzRoleAssignment @RoleAssignmentParams
+
+Write-Output "Synapse Workspace Account Created"
 
 ##
 ## Upload data to the Azure Data Account
@@ -573,11 +552,11 @@ if ($GenerateDataForAzureStorage -eq $true) {
         throw "Azure Storage Resource Group needs to be specified"
     }
     $connectionString = GetAzureStorageConnectionString -AccountName $AzureStorageAccountName `
-                                                        -ResourceGroup $AzureStorageResourceGroup
+        -ResourceGroup $AzureStorageResourceGroup
     Start-Process -FilePath $dataGenerationPath `
-                  -ArgumentList "-nf 100 -n $rootContainer -s AzureStorage -c $connectionString" `
-                  -WorkingDirectory ".\dep\dataGenerator\" `
-				  -Wait
+        -ArgumentList "-nf 100 -n $rootContainer -s AzureStorage -c $connectionString" `
+        -WorkingDirectory ".\dep\dataGenerator\" `
+        -Wait
 
 }
 
@@ -598,47 +577,50 @@ if ($CopyDataFromAzureStorageToGen2 -eq $true) {
         throw "Data Factory Account Name must be defined"
     }
     $azureStorageConnectionString = GetAzureStorageConnectionString -AccountName $AzureStorageAccountName `
-                                                                    -ResourceGroup $AzureStorageResourceGroup
+        -ResourceGroup $AzureStorageResourceGroup
     $azureStorageGen2ConnectionString = GetAzureStorageConnectionString -AccountName $AzureStorageGen2AccountName `
-                                                                        -ResourceGroup $AzureStorageGen2ResourceGroup `
-                                                                        -OnlyAccessKey
+        -ResourceGroup $AzureStorageGen2ResourceGroup `
+        -OnlyAccessKey
     # Create the linked Services
     # TODO: remove hard-coded linkedService and dataset names
     CreateLinkedService -template $storageLinkedServiceDefinition `
-                        -name azureStorageLinkedService `
-                        -accessKey $azureStorageConnectionString `
-                        -dataFactoryName $DatafactoryAccountName `
-                        -resourceGroup $DatafactoryResourceGroup `
-                        -accountName $AzureStorageAccountName
+        -name azureStorageLinkedService `
+        -accessKey $azureStorageConnectionString `
+        -dataFactoryName $DatafactoryAccountName `
+        -resourceGroup $DatafactoryResourceGroup `
+        -accountName $AzureStorageAccountName
     CreateDataSet -dataSetName azureStorageLinkedServiceDataSet `
-                  -linkedServiceReference azureStorageLinkedService `
-                  -container $rootContainer `
-                  -dataFactoryName $DatafactoryAccountName `
-                  -resourceGroup $DatafactoryResourceGroup `
-                  -template $azureStorageBlobDataSet
+        -linkedServiceReference azureStorageLinkedService `
+        -container $rootContainer `
+        -dataFactoryName $DatafactoryAccountName `
+        -resourceGroup $DatafactoryResourceGroup `
+        -template $azureStorageBlobDataSet
     
     # Create the datasets we'll copy from to
     CreateLinkedService -template $storageGen2LinkedServiceDefinition `
-                        -name azureStorageGen2LinkedService `
-                        -accessKey $azureStorageGen2ConnectionString `
-                        -dataFactoryName $DatafactoryAccountName `
-                        -resourceGroup $DatafactoryResourceGroup `
-                        -accountName $AzureStorageGen2AccountName
+        -name azureStorageGen2LinkedService `
+        -accessKey $azureStorageGen2ConnectionString `
+        -dataFactoryName $DatafactoryAccountName `
+        -resourceGroup $DatafactoryResourceGroup `
+        -accountName $AzureStorageGen2AccountName
     CreateDataSet -dataSetName azureStorageGen2LinkedServiceDataSet `
-                  -linkedServiceReference azureStorageGen2LinkedService `
-                  -container $rootContainer `
-                  -dataFactoryName $DatafactoryAccountName `
-                  -resourceGroup $DatafactoryResourceGroup `
-                  -template $azureStorageGen2DataSet
+        -linkedServiceReference azureStorageGen2LinkedService `
+        -container $rootContainer `
+        -dataFactoryName $DatafactoryAccountName `
+        -resourceGroup $DatafactoryResourceGroup `
+        -template $azureStorageGen2DataSet
 
     # Create the Azure Data Factory Pipeline
     CreatePipelineAndRunPipeline -pipelineTemplate $copyPipeline `
-                   -dataFactoryName $DatafactoryAccountName `
-                   -dataFactoryResourceGroup $DatafactoryResourceGroup `
-                   -azureStorageLinkedServiceDatasetName azureStorageLinkedServiceDataSet `
-                   -azureStorageGen2LinkedServiceDatasetName azureStorageGen2LinkedServiceDataSet `
-                   -name 'TestCopyPipeline'
+        -dataFactoryName $DatafactoryAccountName `
+        -dataFactoryResourceGroup $DatafactoryResourceGroup `
+        -azureStorageLinkedServiceDatasetName azureStorageLinkedServiceDataSet `
+        -azureStorageGen2LinkedServiceDatasetName azureStorageGen2LinkedServiceDataSet `
+        -name 'TestCopyPipeline'
 }
+
+Write-Output "Copy Data Completed"
+
 ##
 ## Upload temp data to the Azure Data Account which is not subject to copy activity
 ##
@@ -650,10 +632,12 @@ if ($GenerateDataForAzureStoragetemp -eq $true) {
         throw "Azure Storage Resource Group needs to be specified"
     }
     $connectionString = GetAzureStorageConnectionString -AccountName $AzureStorageAccountName `
-                                                        -ResourceGroup $AzureStorageResourceGroup
+        -ResourceGroup $AzureStorageResourceGroup
     Start-Process -FilePath $dataGenerationPath `
-                  -ArgumentList "-nf 50 -n $rootContainer2 -s AzureStorage -c $connectionString -e" `
-                  -WorkingDirectory ".\dep\dataGenerator\" `
-				  -Wait
+        -ArgumentList "-nf 50 -n $rootContainer2 -s AzureStorage -c $connectionString -e" `
+        -WorkingDirectory ".\dep\dataGenerator\" `
+        -Wait
 
 }
+
+Write-Output "Deployment Completed."
