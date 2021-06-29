@@ -502,7 +502,7 @@ if ($CreateAzureStorageGen2Account -eq $true) {
 
 Write-Output "ADLS Storage Account Created"
 
-[string]$ObjectIdpv = $(Get-AzureADServicePrincipal -Filter "DisplayName eq '$CatalogName'").ObjectId,
+$ObjectIdpv = $(Get-AzureADServicePrincipal -Filter "DisplayName eq '$CatalogName'").ObjectId,
 
 $usercontext = get-azcontext
 

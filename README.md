@@ -26,9 +26,9 @@
 
 ## Notes
 
-- need to run below command in windows powershell prior to running the script
+- need to run the entire deployment script in PowerShell (run as administrator)
 
-- `Install-Module AzureAD`
+- Cloud file access denied error does cause issues with package installs. Currently registered as a bug with PowerShell package. Alternative way around this is to run individual Install-Module command direct in PowerShell.
 
 - If issues running scripts on your machine and you get the following error:
 
