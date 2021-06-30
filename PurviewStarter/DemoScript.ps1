@@ -441,10 +441,11 @@ function RoleAssignmentsToCatalog (
     [string] $servicePrincipalId,
     [string] $subscriptionId,
     [string] $resourceScope,
-    [string] $roleId
+    [string] $roleId,
+    [string] $catalogRGNameString,
+    [string] $catalogNameString
 ) {
-    New-AzRoleAssignment -ObjectId $servicePrincipalId -RoleDefinitionId $roleId -Scope $resourceScope
-    
+    New-AzRoleAssignment -ObjectId $servicePrincipalId -RoleDefinitionName "Owner" -ResourceName $catalogNameString -ResourceType "Microsoft.Purview/accounts" -ResourceGroupName $catalogRGNameString
 }
 
 ##############################################################################
@@ -569,11 +570,11 @@ AddDataFactoryManagedIdentityToCatalog -servicePrincipalId $dataFactoryPrincipal
     -subscriptionId $SubscriptionId `
     -catalogResourceGroup $CatalogResourceGroup
 
-Write-Output "Setting the Managed Identity $usercontextAccountId on the Catalog: $CatalogName"
-$FullPurviewAccountScope2 = "/subscriptions/$subscriptionId/resourceGroups/$catalogResourceGroup/providers/Microsoft.Purview/accounts/$catalogName"
-$PurviewOwnerRole = "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
 $userADObjectId = (Get-AzureADUser -ObjectId "jostarkie@microsoft.com").ObjectId
-RoleAssignmentsToCatalog -servicePrincipalId $userADObjectId ` -subscriptionId $SubscriptionId` -resourceScope $FullPurviewAccountScope2` -roleId $PurviewOwnerRole
+Write-Output "Setting the Managed Identity ($usercontextAccountId) $userADObjectId on the Catalog: $CatalogName"
+$FullPurviewAccountScope2 = "/subscriptions/$subscriptionId/resourceGroups/$catalogResourceGroup/providers/Microsoft.Purview/accounts/$catalogName"
+$PurviewRoleDefinitionName = "Owner"
+RoleAssignmentsToCatalog -servicePrincipalId $userADObjectId ` -subscriptionId $SubscriptionId ` -resourceScope $FullPurviewAccountScope2 ` -roleId $PurviewRoleDefinitionName ` -catalogRGNameString $CatalogResourceGroup ` -catalogNameString $CatalogName
 
 ##
 ## Upload data to the Azure Data Account
