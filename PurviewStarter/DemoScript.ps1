@@ -262,7 +262,7 @@ function UpdateAzureDataFactoryV2 {
             # Start-Sleep -Seconds 60
             # $dataFactoryPrincipalId = $dataFactory.Identity.PrincipalId
             # Write-Output "Setting the Managed Identity $dataFactoryPrincipalId on the Catalog: $CatalogName"
-            # AddDataFactoryManagedIdentityToCatalog -servicePrincipalId $dataFactoryPrincipalId `
+            # AddPurviewDataCuratorManagedIdentityToCatalog -servicePrincipalId $dataFactoryPrincipalId `
             #     -catalogName $CatalogName `
             #     -subscriptionId $SubscriptionId `
             #     -catalogResourceGroup $CatalogResourceGroup
@@ -421,20 +421,29 @@ function Get-AzBearerToken() {
 #
 # Add the linked service to
 #
-function AddDataFactoryManagedIdentityToCatalog (
+function AddPurviewDataCuratorManagedIdentityToCatalog (
     [string] $servicePrincipalId,
-    [string] $catalogName,
-    [string] $subscriptionId,
-    [string] $catalogResourceGroup) {
-    # Add delay so that service principal is available in the tenant before invoking the function below
-    # Write-Output "Second sleep started."
-    # Start-Sleep -Seconds 60
-    # Write-Output "Second sleep ended."
-    Write-Output "subscriptionId:$subscriptionId catalogResourceGroup:$catalogResourceGroup catalogName=$catalogName"
+    [string] $resourceName
+) {
+     Write-Output "subscriptionId:$subscriptionId catalogResourceGroup:$CatalogResourceGroup catalogName=$CatalogName"
+     Write-Output "Giving $resourceName ($servicePrincipalId) Data Curator Access to Purview account $CatalogName"
     # Purview Data Curator
     $DataCuratorRoleId = "8a3c28859b384fd29d9991af537c1347"
-    $FullPurviewAccountScope = "/subscriptions/$subscriptionId/resourceGroups/$catalogResourceGroup/providers/Microsoft.Purview/accounts/$catalogName"
+    $FullPurviewAccountScope = "/subscriptions/$SubscriptionId/resourceGroups/$CatalogResourceGroup/providers/Microsoft.Purview/accounts/$CatalogName"
     New-AzRoleAssignment -ObjectId $servicePrincipalId -RoleDefinitionId $DataCuratorRoleId -Scope $FullPurviewAccountScope
+}
+
+function AddCatalogToStorageAccountsRole (
+    [string] $servicePrincipalId,
+    [string] $resourceName,
+    [string] $storageAccountName, 
+    [string] $storageScope
+) {
+     Write-Output "subscriptionId:$subscriptionId catalogResourceGroup:$CatalogResourceGroup catalogName=$CatalogName"
+
+     Write-Output "Giving $resourceName ($servicePrincipalId) Storage Blob Data Reader Access to Storage account $storageAccountName"
+
+    New-AzRoleAssignment -ObjectId $servicePrincipalId -RoleDefinitionName "Storage Blob Data Reader" -Scope $storageScope
 }
 
 function RoleAssignmentsToCatalog (
@@ -558,23 +567,46 @@ $RoleAssignmentParams = @{
 }
 New-AzRoleAssignment @RoleAssignmentParams
 
+# To allow user access to the portal after resource creation
+New-AzSynapseFirewallRule -WorkspaceName $SynapseWorkspaceName -Name "UserAccessFirewallRule" -StartIpAddress "0.0.0.0" -EndIpAddress "255.255.255.255"
+
 Write-Output "Synapse Workspace Account Created"
+
+$userADObjectId = (Get-AzureADUser -ObjectId "jostarkie@microsoft.com").ObjectId
+# User access to resource group 
+Write-output "Giving User Owner access over resource group."
+New-AzRoleAssignment -ObjectId $userADObjectId -RoleDefinitionName "Owner" -ResourceGroupName $CatalogResourceGroup
+
+# User owner access to Purview 
+Write-Output "Setting the Managed Identity ($usercontextAccountId) $userADObjectId on the Catalog: $CatalogName"
+
+$FullPurviewAccountScope2 = "/subscriptions/$subscriptionId/resourceGroups/$catalogResourceGroup/providers/Microsoft.Purview/accounts/$catalogName"
+
+$PurviewRoleDefinitionName = "Owner"
+
+RoleAssignmentsToCatalog -servicePrincipalId $userADObjectId ` -subscriptionId $SubscriptionId ` -resourceScope $FullPurviewAccountScope2 ` -roleId $PurviewRoleDefinitionName ` -catalogRGNameString $CatalogResourceGroup ` -catalogNameString $CatalogName
 
 # Doing ADF role assignment here to prevent PrincipalId not found in directory error.
 Write-Output "RoleAssignments in progress."
-
+# ADF access to Purview
 $dataFactoryPrincipalId = $createdDataFactory.Identity.PrincipalId
 Write-Output "Setting the Managed Identity $dataFactoryPrincipalId on the Catalog: $CatalogName"
-AddDataFactoryManagedIdentityToCatalog -servicePrincipalId $dataFactoryPrincipalId `
-    -catalogName $CatalogName `
-    -subscriptionId $SubscriptionId `
-    -catalogResourceGroup $CatalogResourceGroup
+AddPurviewDataCuratorManagedIdentityToCatalog -servicePrincipalId $dataFactoryPrincipalId ` -resourceName $DatafactoryAccountName
 
-$userADObjectId = (Get-AzureADUser -ObjectId "jostarkie@microsoft.com").ObjectId
-Write-Output "Setting the Managed Identity ($usercontextAccountId) $userADObjectId on the Catalog: $CatalogName"
-$FullPurviewAccountScope2 = "/subscriptions/$subscriptionId/resourceGroups/$catalogResourceGroup/providers/Microsoft.Purview/accounts/$catalogName"
-$PurviewRoleDefinitionName = "Owner"
-RoleAssignmentsToCatalog -servicePrincipalId $userADObjectId ` -subscriptionId $SubscriptionId ` -resourceScope $FullPurviewAccountScope2 ` -roleId $PurviewRoleDefinitionName ` -catalogRGNameString $CatalogResourceGroup ` -catalogNameString $CatalogName
+    # Synapse Analytics access to Purview
+$synapsePrincipalId = $SynapseInfo.Identity.PrincipalId
+Write-Output "Setting the Managed Identity $synapsePrincipalId on the Catalog: $CatalogName"
+AddPurviewDataCuratorManagedIdentityToCatalog -servicePrincipalId $synapsePrincipalId ` -resourceName $SynapseWorkspaceName
+
+# Purview Storage Blob Data Reader access to storage accounts
+# blob store scoping URL
+$blobStoreScope = "/subscriptions/$subscriptionId/resourceGroups/$CatalogResourceGroup/providers/Microsoft.Storage/storageAccounts/$AzureStorageAccountName"
+AddCatalogToStorageAccountsRole -servicePrincipalId $ObjectIdpv ` -resourceName $CatalogName ` -StorageAccountName $AzureStorageAccountName ` -storageScope $blobStoreScope
+
+# ADLS store scoping URL
+$adlsStoreScope = "/subscriptions/$subscriptionId/resourceGroups/$CatalogResourceGroup/providers/Microsoft.Storage/storageAccounts/$AzureStorageGen2AccountName"
+AddCatalogToStorageAccountsRole -servicePrincipalId $ObjectIdpv ` -resourceName $CatalogName ` -StorageAccountName $AzureStorageGen2AccountName ` -storageScope $adlsStoreScope
+
 
 ##
 ## Upload data to the Azure Data Account
