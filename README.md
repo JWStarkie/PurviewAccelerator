@@ -38,3 +38,41 @@
 - Run following script to grant permissions:
 
 - `Set-ExecutionPolicy -ExecutionPolicy UnRestricted -Scope CurrentUser`
+
+When running in Powershell 7+ and if you also have Powersher 5.1 with AzureRM modules installed, you will running into some issues using this script:
+
+
+Solution: Use: Import-Module AzureAD -UseWindowsPowerShell
+
+Error:
+Connect-AzureAD: C:\PurviewDemoHack\PurviewDemo\PurviewStarter\RunStarterKit.ps1:28
+Line |
+  28 |  Connect-AzureAD
+     |  ~~~~~~~~~~~~~~~
+     | One or more errors occurred. (Could not load type 'System.Security.Cryptography.SHA256Cng' from
+     | assembly 'System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.): Could not
+     | load type 'System.Security.Cryptography.SHA256Cng' from assembly 'System.Core, Version=4.0.0.0,
+     | Culture=neutral, PublicKeyToken=b77a5c561934e089'.
+
+Connect-AzureAD: C:\PurviewDemoHack\PurviewDemo\PurviewStarter\RunStarterKit.ps1:28
+Line |
+  28 |  Connect-AzureAD
+     |  ~~~~~~~~~~~~~~~
+     | One or more errors occurred. (Could not load type 'System.Security.Cryptography.SHA256Cng' from
+     | assembly 'System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.)
+
+Connect-AzureAD: C:\PurviewDemoHack\PurviewDemo\PurviewStarter\RunStarterKit.ps1:28
+Line |
+  28 |  Connect-AzureAD
+     |  ~~~~~~~~~~~~~~~
+     | Could not load type 'System.Security.Cryptography.SHA256Cng' from assembly 'System.Core,
+     | Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.
+
+Connect-AzureAD: C:\PurviewDemoHack\PurviewDemo\PurviewStarter\RunStarterKit.ps1:28
+Line |
+  28 |  Connect-AzureAD
+     |  ~~~~~~~~~~~~~~~
+     | One or more errors occurred. (Could not load type 'System.Security.Cryptography.SHA256Cng' from
+     | assembly 'System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.): Could not
+     | load type 'System.Security.Cryptography.SHA256Cng' from assembly 'System.Core, Version=4.0.0.0,
+     | Culture=neutral, PublicKeyToken=b77a5c561934e089'.
