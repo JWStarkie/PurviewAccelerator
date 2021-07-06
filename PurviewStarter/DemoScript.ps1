@@ -107,6 +107,40 @@ $keyVaultLinkedServiceDefinitions = @"
 }
 "@
 
+###SynapseLinkedServiceinADFDef
+$synapseLinkedServiceDefinitions = @"
+{
+    "name": "<<name>>",
+    "properties": {
+        "annotations": [],
+        "type": "AzureSqlDW",
+        "typeProperties": {
+            "connectionString": {
+                "type": "AzureKeyVaultSecret",
+                "store": {
+                    "referenceName": "<<keyvaultlinkedservicename>>",
+                    "type": "LinkedServiceReference"
+                },
+                "secretName": "<<secretname>>"
+            }
+        }
+    }
+}
+"@
+##KeyVaultLinkedServiceinADFDef
+$keyVaultLinkedServiceDefinitions = @"
+{
+    "name": "<<keyvaultlinkedservicename>>",
+    "properties": {
+        "annotations": [],
+        "type": "AzureKeyVault",
+        "typeProperties": {
+            "baseUrl": "https://<<keyvaultname>>.vault.azure.net/"
+        }
+    }
+}
+"@
+
 $azureStorageBlobDataSet = @"
 {
     "name": "<<datasetName>>",
@@ -149,6 +183,28 @@ $azureStorageGen2DataSet = @"
     "type": "Microsoft.DataFactory/factories/datasets"
 }
 "@
+
+## SynapseDataset, need to revisit schema and table name
+$SynapseDataSet = @"
+{
+    "name": "<<datasetName>>",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "<<linkedServiceName>>",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "AzureSqlDWTable",
+        "typeProperties": {
+            "schema": "<<SchemaName>>",
+            "table": "<<TableName>>"
+            }
+        }
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}
+"@
+
 
 $copyPipeline = @"
 {
@@ -199,6 +255,65 @@ $copyPipeline = @"
         ]
     },
     "type": "Microsoft.DataFactory/factories/pipelines"
+}
+"@
+
+
+
+## copy pipeline from gen2 to synapse
+$copyPipelineGen2Synapse = @"
+{
+    "name": "demogen2Synapse_<<name>>",
+    "properties": {
+        "activities": [
+            {
+                "name": "<<name>>",
+                "type": "Copy",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "source": {
+                        "type": "BinarySource",
+                        "storeSettings": {
+                            "type": "AzureBlobFSReadSettings",
+                            "recursive": true,
+                            "enablePartitionDiscovery": false
+                        }
+                    },
+                    "sink": {
+                        "type": "SqlDWSink",
+                        "allowPolyBase": true,
+                        "polyBaseSettings": {
+                            "rejectValue": 0,
+                            "rejectType": "value",
+                            "useTypeDefault": true
+                        }
+                    },
+                    "enableStaging": false
+                },
+                "inputs": [
+                    {
+                        "referenceName": "<<azureStorageGen2LinkedServiceDataSet>>",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "<<synapseLinkedServiceDataSet>>",
+                        "type": "DatasetReference"
+                    }
+                ]
+            }
+        ],
+        "annotations": []
+    }
 }
 "@
 
@@ -485,6 +600,7 @@ Write-Output "Blob Storage Account Created"
 
 Start-Sleep -Seconds 60
 
+## purview creation 
 New-AzResourceGroupDeployment -ResourceGroupName $ResourceGroup -TemplateFile ".\purviewtemplate_variables.json"
 
 Write-Output "Purview Account Created"
@@ -541,7 +657,11 @@ $secretvalue = ConvertTo-SecureString "Password123!" -AsPlainText -Force
 Set-AzKeyVaultSecret -VaultName $KeyVaultName -Name "SQLPassword" -SecretValue $secretvalue
 
 Write-Output "Key Vault Account Created"
-
+=======
+## Synapse creation
+if(-not (Get-Module Az.Synapse)) {
+    Install-Module -Name Az.Synapse -RequiredVersion 0.1.0
+}
 ## Synapse creation
 $Cred = New-Object -TypeName System.Management.Automation.PSCredential ($SqlUser, (ConvertTo-SecureString $SqlPassword -AsPlainText -Force))
 
