@@ -107,40 +107,6 @@ $keyVaultLinkedServiceDefinitions = @"
 }
 "@
 
-###SynapseLinkedServiceinADFDef
-$synapseLinkedServiceDefinitions = @"
-{
-    "name": "<<name>>",
-    "properties": {
-        "annotations": [],
-        "type": "AzureSqlDW",
-        "typeProperties": {
-            "connectionString": {
-                "type": "AzureKeyVaultSecret",
-                "store": {
-                    "referenceName": "<<keyvaultlinkedservicename>>",
-                    "type": "LinkedServiceReference"
-                },
-                "secretName": "<<secretname>>"
-            }
-        }
-    }
-}
-"@
-##KeyVaultLinkedServiceinADFDef
-$keyVaultLinkedServiceDefinitions = @"
-{
-    "name": "<<keyvaultlinkedservicename>>",
-    "properties": {
-        "annotations": [],
-        "type": "AzureKeyVault",
-        "typeProperties": {
-            "baseUrl": "https://<<keyvaultname>>.vault.azure.net/"
-        }
-    }
-}
-"@
-
 $azureStorageBlobDataSet = @"
 {
     "name": "<<datasetName>>",
@@ -183,7 +149,6 @@ $azureStorageGen2DataSet = @"
     "type": "Microsoft.DataFactory/factories/datasets"
 }
 "@
-
 ## SynapseDataset, need to revisit schema and table name
 $SynapseDataSet = @"
 {
@@ -204,8 +169,7 @@ $SynapseDataSet = @"
     "type": "Microsoft.DataFactory/factories/datasets"
 }
 "@
-
-
+## Original copy pipeline
 $copyPipeline = @"
 {
     "name": "demo_<<name>>",
@@ -257,9 +221,6 @@ $copyPipeline = @"
     "type": "Microsoft.DataFactory/factories/pipelines"
 }
 "@
-
-
-
 ## copy pipeline from gen2 to synapse
 $copyPipelineGen2Synapse = @"
 {
@@ -600,7 +561,6 @@ Write-Output "Blob Storage Account Created"
 
 Start-Sleep -Seconds 60
 
-## purview creation 
 New-AzResourceGroupDeployment -ResourceGroupName $ResourceGroup -TemplateFile ".\purviewtemplate_variables.json"
 
 Write-Output "Purview Account Created"
@@ -657,11 +617,7 @@ $secretvalue = ConvertTo-SecureString "Password123!" -AsPlainText -Force
 Set-AzKeyVaultSecret -VaultName $KeyVaultName -Name "SQLPassword" -SecretValue $secretvalue
 
 Write-Output "Key Vault Account Created"
-=======
-## Synapse creation
-if(-not (Get-Module Az.Synapse)) {
-    Install-Module -Name Az.Synapse -RequiredVersion 0.1.0
-}
+
 ## Synapse creation
 $Cred = New-Object -TypeName System.Management.Automation.PSCredential ($SqlUser, (ConvertTo-SecureString $SqlPassword -AsPlainText -Force))
 
@@ -689,6 +645,11 @@ New-AzRoleAssignment @RoleAssignmentParams
 
 # To allow user access to the portal after resource creation
 New-AzSynapseFirewallRule -WorkspaceName $SynapseWorkspaceName -Name "UserAccessFirewallRule" -StartIpAddress "0.0.0.0" -EndIpAddress "255.255.255.255"
+
+# Create SQL pool in Synapse workspace
+New-AzSynapseSqlPool -WorkspaceName $SynapseWorkspaceName -Name "SQLPool" -PerformanceLevel DW100c
+
+## Invoke-Sqlcmd -Query "CREATE table dbo.NewTable" -ServerInstance "aajopurvac12345synapsews.sql.azuresynapse.net" -Database "testSQLPool" -Username "demogod" -Password "Password123!"
 
 Write-Output "Synapse Workspace Account Created"
 
