@@ -425,8 +425,8 @@ function AddPurviewDataCuratorManagedIdentityToCatalog (
     [string] $servicePrincipalId,
     [string] $resourceName
 ) {
-     Write-Output "subscriptionId:$subscriptionId catalogResourceGroup:$CatalogResourceGroup catalogName=$CatalogName"
-     Write-Output "Giving $resourceName ($servicePrincipalId) Data Curator Access to Purview account $CatalogName"
+    Write-Output "subscriptionId:$subscriptionId catalogResourceGroup:$CatalogResourceGroup catalogName=$CatalogName"
+    Write-Output "Giving $resourceName ($servicePrincipalId) Data Curator Access to Purview account $CatalogName"
     # Purview Data Curator
     $DataCuratorRoleId = "8a3c28859b384fd29d9991af537c1347"
     $FullPurviewAccountScope = "/subscriptions/$SubscriptionId/resourceGroups/$CatalogResourceGroup/providers/Microsoft.Purview/accounts/$CatalogName"
@@ -439,9 +439,9 @@ function AddCatalogToStorageAccountsRole (
     [string] $storageAccountName, 
     [string] $storageScope
 ) {
-     Write-Output "subscriptionId:$subscriptionId catalogResourceGroup:$CatalogResourceGroup catalogName=$CatalogName"
+    Write-Output "subscriptionId:$subscriptionId catalogResourceGroup:$CatalogResourceGroup catalogName=$CatalogName"
 
-     Write-Output "Giving $resourceName ($servicePrincipalId) Storage Blob Data Reader Access to Storage account $storageAccountName"
+    Write-Output "Giving $resourceName ($servicePrincipalId) Storage Blob Data Reader Access to Storage account $storageAccountName"
 
     New-AzRoleAssignment -ObjectId $servicePrincipalId -RoleDefinitionName "Storage Blob Data Reader" -Scope $storageScope
 }
@@ -572,7 +572,7 @@ New-AzSynapseFirewallRule -WorkspaceName $SynapseWorkspaceName -Name "UserAccess
 
 Write-Output "Synapse Workspace Account Created"
 
-$userADObjectId = (Get-AzureADUser -ObjectId "jostarkie@microsoft.com").ObjectId
+$userADObjectId = (Get-AzureADUser -ObjectId $usercontextAccountId).ObjectId
 # User access to resource group 
 Write-output "Giving User Owner access over resource group."
 New-AzRoleAssignment -ObjectId $userADObjectId -RoleDefinitionName "Owner" -ResourceGroupName $CatalogResourceGroup
@@ -593,7 +593,7 @@ $dataFactoryPrincipalId = $createdDataFactory.Identity.PrincipalId
 Write-Output "Setting the Managed Identity $dataFactoryPrincipalId on the Catalog: $CatalogName"
 AddPurviewDataCuratorManagedIdentityToCatalog -servicePrincipalId $dataFactoryPrincipalId ` -resourceName $DatafactoryAccountName
 
-    # Synapse Analytics access to Purview
+# Synapse Analytics access to Purview
 $synapsePrincipalId = $SynapseInfo.Identity.PrincipalId
 Write-Output "Setting the Managed Identity $synapsePrincipalId on the Catalog: $CatalogName"
 AddPurviewDataCuratorManagedIdentityToCatalog -servicePrincipalId $synapsePrincipalId ` -resourceName $SynapseWorkspaceName
