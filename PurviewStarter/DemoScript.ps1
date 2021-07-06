@@ -149,7 +149,27 @@ $azureStorageGen2DataSet = @"
     "type": "Microsoft.DataFactory/factories/datasets"
 }
 "@
-
+## SynapseDataset, need to revisit schema and table name
+$SynapseDataSet = @"
+{
+    "name": "<<datasetName>>",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "<<linkedServiceName>>",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "AzureSqlDWTable",
+        "typeProperties": {
+            "schema": "<<SchemaName>>",
+            "table": "<<TableName>>"
+            }
+        }
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}
+"@
+## Original copy pipeline
 $copyPipeline = @"
 {
     "name": "demo_<<name>>",
@@ -199,6 +219,62 @@ $copyPipeline = @"
         ]
     },
     "type": "Microsoft.DataFactory/factories/pipelines"
+}
+"@
+## copy pipeline from gen2 to synapse
+$copyPipelineGen2Synapse = @"
+{
+    "name": "demogen2Synapse_<<name>>",
+    "properties": {
+        "activities": [
+            {
+                "name": "<<name>>",
+                "type": "Copy",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "source": {
+                        "type": "BinarySource",
+                        "storeSettings": {
+                            "type": "AzureBlobFSReadSettings",
+                            "recursive": true,
+                            "enablePartitionDiscovery": false
+                        }
+                    },
+                    "sink": {
+                        "type": "SqlDWSink",
+                        "allowPolyBase": true,
+                        "polyBaseSettings": {
+                            "rejectValue": 0,
+                            "rejectType": "value",
+                            "useTypeDefault": true
+                        }
+                    },
+                    "enableStaging": false
+                },
+                "inputs": [
+                    {
+                        "referenceName": "<<azureStorageGen2LinkedServiceDataSet>>",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "<<synapseLinkedServiceDataSet>>",
+                        "type": "DatasetReference"
+                    }
+                ]
+            }
+        ],
+        "annotations": []
+    }
 }
 "@
 
@@ -569,6 +645,11 @@ New-AzRoleAssignment @RoleAssignmentParams
 
 # To allow user access to the portal after resource creation
 New-AzSynapseFirewallRule -WorkspaceName $SynapseWorkspaceName -Name "UserAccessFirewallRule" -StartIpAddress "0.0.0.0" -EndIpAddress "255.255.255.255"
+
+# Create SQL pool in Synapse workspace
+New-AzSynapseSqlPool -WorkspaceName $SynapseWorkspaceName -Name "SQLPool" -PerformanceLevel DW100c
+
+## Invoke-Sqlcmd -Query "CREATE table dbo.NewTable" -ServerInstance "aajopurvac12345synapsews.sql.azuresynapse.net" -Database "testSQLPool" -Username "demogod" -Password "Password123!"
 
 Write-Output "Synapse Workspace Account Created"
 
