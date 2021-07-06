@@ -58,11 +58,13 @@ else {
 
 ### Install Az.Synapse Powershell cmdlet module
 Write-Output "Checking for Az.Synapse Module."
-if (-not (Get-InstalledModule Az.Synapse)) {
+if (-not (Get-InstalledModule Az.Synapse -MinimumVersion 0.12.0)) {
     InstallAZSynapseModule
+    Import-Module  -Name Az.Synapse
 }
 else {
-    Write-Output "Az.Synapse Module is already installed."
+    Import-Module  -Name Az.Synapse
+    Write-Output "Az.Synapse Module is already installed and Imported."
 }
 
 ### Connect to AzAccount if not connected - once authenticated, display selected subscription and confirm with user the selection.
