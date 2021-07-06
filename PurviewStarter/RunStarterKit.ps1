@@ -56,7 +56,7 @@ else {
     Write-Output "Az.Accounts Module is already imported."
 }
 
-### Install Az.Synapse Powershell cmdlet module
+### Install Az.Synapse Powershell cmdlet module and Import
 Write-Output "Checking for Az.Synapse Module."
 if (-not (Get-InstalledModule Az.Synapse -MinimumVersion 0.12.0)) {
     InstallAZSynapseModule
