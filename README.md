@@ -12,9 +12,20 @@
 - add purview managed identity to synapse as db_owner/ or KV, **done**
 - pass parameter of name and location down to TemplatePurview.Json, **done**
 - add copy pipeline from gen2 to synapse (link synapse and adf using credentials/managed identity)
-- add creator of resources to Purview IAM (Access Control)
+- add creator of resources to Purview IAM (Access Control) **done**
 - make location a parameter
 - make one click deployment
+- make new service principal for SQL pool access
+  - https://docs.microsoft.com/en-gb/azure/azure-sql/database/authentication-aad-configure?tabs=azure-powershell#provision-azure-ad-admin-sql-database
+- set active directory in SQL pool to service principal 
+  - https://docs.microsoft.com/en-gb/azure/data-factory/connector-azure-sql-data-warehouse#using-managed-service-identity-authentication
+  
+ **OR**
+-
+
+- try this with managed identity
+  - https://docs.microsoft.com/en-us/powershell/module/sqlserver/invoke-sqlcmd?view=sqlserver-ps&source=docs#examples
+
 
 ## Purview Starter Kit Notes:
 
@@ -26,7 +37,7 @@
 
 ## Notes
 
-- need to run the entire deployment script in PowerShell (run as administrator)
+- Need to run the entire deployment script in PowerShell (run as administrator)
 
 - Cloud file access denied error does cause issues with package installs. Currently registered as a bug with PowerShell package. Alternative way around this is to run individual Install-Module command direct in PowerShell.
 
@@ -39,13 +50,13 @@
 
 - `Set-ExecutionPolicy -ExecutionPolicy UnRestricted -Scope CurrentUser`
 
-When running in Powershell 7+ and if you also have Powersher 5.1 with AzureRM modules installed, you will running into some issues using this script:
+ - When running in Powershell 7+ and if you also have Powersher 5.1 with AzureRM modules installed, you will running into some issues using this script:
 
 
-Solution: Use: Import-Module AzureAD -UseWindowsPowerShell
+    - Solution: Use: Import-Module AzureAD -UseWindowsPowerShell
 
 Error:
-Connect-AzureAD: C:\PurviewDemoHack\PurviewDemo\PurviewStarter\RunStarterKit.ps1:28
+``` Connect-AzureAD: C:\PurviewDemoHack\PurviewDemo\PurviewStarter\RunStarterKit.ps1:28
 Line |
   28 |  Connect-AzureAD
      |  ~~~~~~~~~~~~~~~
@@ -76,3 +87,4 @@ Line |
      | assembly 'System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.): Could not
      | load type 'System.Security.Cryptography.SHA256Cng' from assembly 'System.Core, Version=4.0.0.0,
      | Culture=neutral, PublicKeyToken=b77a5c561934e089'.
+```
