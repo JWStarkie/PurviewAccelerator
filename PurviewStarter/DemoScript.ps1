@@ -93,6 +93,7 @@ $synapseLinkedServiceDefinitions = @"
     }
 }
 "@
+
 ##KeyVaultLinkedServiceinADFDef
 $keyVaultLinkedServiceDefinitions = @"
 {
@@ -428,6 +429,39 @@ function CreateLinkedService (
     Remove-Item "$name.json" -ErrorAction SilentlyContinue
 }
 
+function CreateKeyVaultLinkedService (
+    [string] $template,
+    [string] $name,
+    [string] $accountName,
+    [string] $dataFactoryName,
+    [string] $resourceGroup) {
+    Remove-Item "$name.json" -ErrorAction SilentlyContinue
+    $linkedService = (($template -replace "<<keyvaultlinkedservicename>>", "$name") -replace "<<keyvaultname>>", "$KeyVaultName") 
+    $linkedService | Out-File "$name.json"
+    Set-AzDataFactoryV2LinkedService -DataFactoryName $dataFactoryName `
+        -ResourceGroupName $resourceGroup `
+        -Name $name `
+        -DefinitionFile "$name.json" `
+        -Force
+    Remove-Item "$name.json" -ErrorAction SilentlyContinue
+}
+
+function CreateSynapseLinkedService (
+    [string] $template,
+    [string] $name,
+    [string] $dataFactoryName,
+    [string] $resourceGroup) {
+    Remove-Item "$name.json" -ErrorAction SilentlyContinue
+    $linkedService = (($template -replace "<<name>>", "$name") -replace "<<keyvaultlinkedservicename>>", "azureKeyVaultLinkedService") -replace "<<secretname>>", "SQLPassword"
+    $linkedService | Out-File "$name.json"
+    Set-AzDataFactoryV2LinkedService -DataFactoryName $dataFactoryName `
+        -ResourceGroupName $resourceGroup `
+        -Name $name `
+        -DefinitionFile "$name.json" `
+        -Force
+    Remove-Item "$name.json" -ErrorAction SilentlyContinue
+}
+
 function CreatePipelineAndRunPipeline (
     [string] $pipelineTemplate,
     [string] $name,
@@ -451,6 +485,33 @@ function CreatePipelineAndRunPipeline (
     Remove-Item $fileName -ErrorAction SilentlyContinue
 }
 
+function CreateSynapsePipelineAndRunPipeline (
+    [string] $pipelineTemplate,
+    [string] $name,
+    [string] $dataFactoryName,
+    [string] $dataFactoryResourceGroup,
+    [string] $azureSynapseLinkedServiceDatasetName,
+    [string] $azureStorageGen2LinkedServiceDatasetName) {
+    
+    $fileName = "pipeline-$name.json"
+    Remove-Item $fileName -ErrorAction SilentlyContinue
+    $template = (($pipelineTemplate -replace "<<name>>", $name) -replace "<<synapseLinkedServiceDataSet>>", $azureSynapseLinkedServiceDatasetName) -replace "<<azureStorageGen2LinkedServiceDataSet>>", $azureStorageGen2LinkedServiceDatasetName
+    $template | Out-File $fileName
+    
+    Set-AzDataFactoryV2Pipeline -Name $name `
+        -DefinitionFile $fileName `
+        -ResourceGroupName $dataFactoryResourceGroup `
+        -DataFactoryName $dataFactoryName `
+        -Force
+    
+    $runId = Invoke-AzDataFactoryV2Pipeline -ResourceGroupName $dataFactoryResourceGroup `
+        -DataFactoryName $dataFactoryName `
+        -PipelineName $name
+    
+    Write-Host "Executing Copy pipeline $runId"
+    Remove-Item $fileName -ErrorAction SilentlyContinue
+}
+
 #
 # Create the linked service
 #
@@ -463,6 +524,23 @@ function CreateDataSet (
     [string] $template) {
     Remove-Item "$dataSetName.json" -ErrorAction SilentlyContinue
     $dataSet = (($template -replace "<<datasetName>>", "$dataSetName") -replace "<<linkedServiceName>>", "$linkedServiceReference") -replace "<<filesystemname>>", "$container"
+    $dataSet | Out-File "$dataSetName.json"
+    Set-AzDataFactoryV2Dataset -Name $dataSetName `
+        -DefinitionFile "$dataSetName.json" `
+        -Force `
+        -DataFactoryName $dataFactoryName `
+        -ResourceGroupName $resourceGroup
+    Remove-Item "$dataSetName.json" -ErrorAction SilentlyContinue
+}
+
+function CreateSynapseDataSet (
+    [string] $dataSetName,
+    [string] $linkedServiceReference,
+    [string] $dataFactoryName,
+    [string] $resourceGroup,
+    [string] $template) {
+    Remove-Item "$dataSetName.json" -ErrorAction SilentlyContinue
+    $dataSet = (($template -replace "<<datasetName>>", "$dataSetName") -replace "<<linkedServiceName>>", "$linkedServiceReference") 
     $dataSet | Out-File "$dataSetName.json"
     Set-AzDataFactoryV2Dataset -Name $dataSetName `
         -DefinitionFile "$dataSetName.json" `
@@ -671,6 +749,8 @@ RoleAssignmentsToCatalog -servicePrincipalId $userADObjectId ` -subscriptionId $
 Write-Output "RoleAssignments in progress."
 # ADF access to Purview
 $dataFactoryPrincipalId = $createdDataFactory.Identity.PrincipalId
+Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -ObjectId $dataFactoryPrincipalId -PermissionsToSecrets get, set, delete, list
+
 Write-Output "Setting the Managed Identity $dataFactoryPrincipalId on the Catalog: $CatalogName"
 AddPurviewDataCuratorManagedIdentityToCatalog -servicePrincipalId $dataFactoryPrincipalId ` -resourceName $DatafactoryAccountName
 
@@ -767,7 +847,38 @@ if ($CopyDataFromAzureStorageToGen2 -eq $true) {
         -name 'TestCopyPipeline'
 }
 
-Write-Output "Copy Data Completed"
+Write-Output "Copy Data from Blob Store to ADLS Completed"
+
+### ADF FROM ADLS TO SYNAPSE
+
+# Create Key Vault Linked Service
+CreateKeyVaultLinkedService -template $keyVaultLinkedServiceDefinitions `
+    -name azureKeyVaultLinkedService `
+    -dataFactoryName $DatafactoryAccountName `
+    -resourceGroup $DatafactoryResourceGroup `
+    -accountName $AzureStorageAccountName
+
+# Create Synapse Analytics Linked Service
+CreateSynapseLinkedService -template $synapseLinkedServiceDefinitions `
+    -name azureSynapseLinkedService `
+    -dataFactoryName $DatafactoryAccountName `
+    -resourceGroup $DatafactoryResourceGroup 
+
+CreateSynapseDataSet -dataSetName azureSynapseLinkedServiceDataSet `
+    -linkedServiceReference azureSynapseLinkedService `
+    -dataFactoryName $DatafactoryAccountName `
+    -resourceGroup $DatafactoryResourceGroup `
+    -template $SynapseDataSet
+    
+# Create the Azure Data Factory Pipeline
+CreateSynapsePipelineAndRunPipeline -pipelineTemplate $copyPipelineGen2Synapse `
+    -dataFactoryName $DatafactoryAccountName `
+    -dataFactoryResourceGroup $DatafactoryResourceGroup `
+    -azureStorageLinkedServiceDatasetName azureSynapseLinkedServiceDataSet `
+    -azureStorageGen2LinkedServiceDatasetName azureStorageGen2LinkedServiceDataSet `
+    -name 'ADLSToSynapseCopyPipeline'
+
+Write-Output "Copy Data from Blob Store to ADLS Completed"
 
 ##
 ## Upload temp data to the Azure Data Account which is not subject to copy activity
