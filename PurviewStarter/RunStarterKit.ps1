@@ -67,6 +67,15 @@ else {
     Write-Output "Az.Synapse Module is already installed and Imported."
 }
 
+### Install SQLServer  Powershell cmdlet module
+Write-Output "Checking for SQLServer Module."
+if (-not (Get-InstalledModule -Name "SqlServer")) {
+    InstallSqlServerModule
+}
+else {
+    Write-Output "SqlServer Module is already installed."
+}
+
 ### Connect to AzAccount if not connected - once authenticated, display selected subscription and confirm with user the selection.
 if (-not (Get-AzContext)) {
     ConnectAzAccount
