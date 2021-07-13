@@ -685,9 +685,9 @@ $mainPipeline = @"
                                     "physicalType": "String"
                                 },
                                 "sink": {
-                                    "name": "creditcardtype",
-                                    "type": "String",
-                                    "physicalType": "varchar"
+                                    "name": "id",
+                                    "type": "Int32",
+                                    "physicalType": "int"
                                 }
                             },
                             {
@@ -697,7 +697,7 @@ $mainPipeline = @"
                                     "physicalType": "String"
                                 },
                                 "sink": {
-                                    "name": "first_name",
+                                    "name": "street_address",
                                     "type": "String",
                                     "physicalType": "varchar"
                                 }
@@ -709,7 +709,7 @@ $mainPipeline = @"
                                     "physicalType": "String"
                                 },
                                 "sink": {
-                                    "name": "id",
+                                    "name": "country",
                                     "type": "String",
                                     "physicalType": "varchar"
                                 }
@@ -721,7 +721,7 @@ $mainPipeline = @"
                                     "physicalType": "String"
                                 },
                                 "sink": {
-                                    "name": "email",
+                                    "name": "postcode",
                                     "type": "String",
                                     "physicalType": "varchar"
                                 }
@@ -784,6 +784,56 @@ $mainPipeline = @"
                     "enableStaging": false,
                     "translator": {
                         "type": "TabularTranslator",
+                        "mappings": [
+                            {
+                                "source": {
+                                    "name": "id",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "id",
+                                    "type": "Int32",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "creditcardno",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "creditcardno",
+                                    "type": "String",
+                                    "physicalType": "varchar"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "ccardtype",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "ccardtype",
+                                    "type": "String",
+                                    "physicalType": "varchar"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "ccardcountry",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "ccardcountry",
+                                    "type": "String",
+                                    "physicalType": "varchar"
+                                }
+                            }
+                        ],
                         "typeConversion": true,
                         "typeConversionSettings": {
                             "allowDataTruncation": true,
