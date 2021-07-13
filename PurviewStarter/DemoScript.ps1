@@ -334,50 +334,6 @@ $ADLSCSVCreditCardNo = @"
 }
 "@
 
-$old_ADLSCSVDataSet = @"
-{
-    "name": "<<datasetname>>",
-    "properties": {
-        "linkedServiceName": {
-            "referenceName": "<<linkedServiceName>>",
-            "type": "LinkedServiceReference"
-        },
-        "annotations": [],
-        "type": "DelimitedText",
-        "typeProperties": {
-            "location": {
-                "type": "AzureBlobFSLocation",
-                "fileName": "Contoso_Dev_GrossProfit_69.csv",
-                "folderPath": "2018/9/11",
-                "fileSystem": "starter1"
-            },
-            "columnDelimiter": ",",
-            "escapeChar": "\\",
-            "firstRowAsHeader": true,
-            "quoteChar": "\""
-        },
-        "schema": [
-            {
-                "name": "creditcardtype",
-                "type": "String"
-            },
-            {
-                "name": "first_name",
-                "type": "String"
-            },
-            {
-                "name": "id",
-                "type": "String"
-            },
-            {
-                "name": "email",
-                "type": "String"
-            }
-        ]
-    }
-}
-"@
-
 $SynapseDataSetCustInfo = @"
 {
     "name": "<<datasetName>>",
@@ -851,209 +807,6 @@ $mainPipeline = @"
         ],
         "annotations": [],
         "lastPublishTime": "2021-07-13T08:54:16Z"
-    },
-    "type": "Microsoft.DataFactory/factories/pipelines"
-}
-"@
-
-## SynapseDataset, need to revisit schema and table name
-$SynapseDataSet = @"
-{
-    "name": "<<datasetName>>",
-    "properties": {
-        "linkedServiceName": {
-            "referenceName": "<<linkedServiceName>>",
-            "type": "LinkedServiceReference"
-        },
-        "annotations": [],
-        "type": "AzureSqlDWTable",
-        "schema": [
-            {
-                "name": "creditcardtype",
-                "type": "varchar"
-            },
-            {
-                "name": "first_name",
-                "type": "varchar"
-            },
-            {
-                "name": "id",
-                "type": "varchar"
-            },
-            {
-                "name": "email",
-                "type": "varchar"
-            }
-        ],
-        "typeProperties": {
-            "schema": "dbo",
-            "table": "Customer"
-        }
-    }
-}
-"@
-
-## Original copy pipeline
-$copyPipeline = @"
-{
-    "name": "demo_<<name>>",
-    "properties": {
-        "activities": [
-            {
-                "name": "<<name>>",
-                "type": "Copy",
-                "policy": {
-                    "timeout": "0.01:00:00",
-                    "retry": 0,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "userProperties": [],
-                "typeProperties": {
-                    "source": {
-                        "type": "BinarySource",
-                        "storeSettings": {
-                            "type": "AzureBlobStorageReadSettings",
-                            "recursive": true,
-                            "wildcardFolderPath": "*"
-                        }
-                    },
-                    "sink": {
-                        "type": "BinarySink",
-                        "storeSettings": {
-                            "type": "AzureBlobFSWriteSettings"
-                        }
-                    },
-                    "enableStaging": false
-                },
-                "inputs": [
-                    {
-                        "referenceName": "<<azureStorageLinkedServiceDataSet>>",
-                        "type": "DatasetReference"
-                    }
-                ],
-                "outputs": [
-                    {
-                        "referenceName": "<<azureStorageGen2LinkedServiceDataSet>>",
-                        "type": "DatasetReference"
-                    }
-                ]
-            }
-        ]
-    },
-    "type": "Microsoft.DataFactory/factories/pipelines"
-}
-"@
-
-## copy pipeline from gen2 to synapse
-$copyPipelineGen2Synapse = @"
-{
-    "name": "CopyTranformPipeline",
-    "properties": {
-        "activities": [
-            {
-                "name": "CopytoADLS",
-                "type": "Copy",
-                "dependsOn": [],
-                "policy": {
-                    "timeout": "0.01:00:00",
-                    "retry": 0,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "userProperties": [],
-                "typeProperties": {
-                    "source": {
-                        "type": "BinarySource",
-                        "storeSettings": {
-                            "type": "AzureBlobStorageReadSettings",
-                            "recursive": true,
-                            "wildcardFolderPath": "*"
-                        },
-                        "formatSettings": {
-                            "type": "BinaryReadSettings"
-                        }
-                    },
-                    "sink": {
-                        "type": "BinarySink",
-                        "storeSettings": {
-                            "type": "AzureBlobFSWriteSettings"
-                        }
-                    },
-                    "enableStaging": false
-                },
-                "inputs": [
-                    {
-                        "referenceName": "azureStorageLinkedServiceDataSet",
-                        "type": "DatasetReference"
-                    }
-                ],
-                "outputs": [
-                    {
-                        "referenceName": "azureStorageGen2LinkedServiceDataSet",
-                        "type": "DatasetReference"
-                    }
-                ]
-            },
-            {
-                "name": "CopytoSQLPool",
-                "type": "Copy",
-                "dependsOn": [
-                    {
-                        "activity": "CopytoADLS",
-                        "dependencyConditions": [
-                            "Succeeded"
-                        ]
-                    }
-                ],
-                "policy": {
-                    "timeout": "7.00:00:00",
-                    "retry": 0,
-                    "retryIntervalInSeconds": 30,
-                    "secureOutput": false,
-                    "secureInput": false
-                },
-                "userProperties": [],
-                "typeProperties": {
-                    "source": {
-                        "type": "DelimitedTextSource",
-                        "storeSettings": {
-                            "type": "AzureBlobFSReadSettings",
-                            "recursive": true,
-                            "enablePartitionDiscovery": false
-                        },
-                        "formatSettings": {
-                            "type": "DelimitedTextReadSettings"
-                        }
-                    },
-                    "sink": {
-                        "type": "SqlDWSink",
-                        "allowPolyBase": true,
-                        "polyBaseSettings": {
-                            "rejectValue": 0,
-                            "rejectType": "value",
-                            "useTypeDefault": true
-                        }
-                    },
-                    "enableStaging": false
-                },
-                "inputs": [
-                    {
-                        "referenceName": "azureADLSCSVLinkedServiceDataSet",
-                        "type": "DatasetReference"
-                    }
-                ],
-                "outputs": [
-                    {
-                        "referenceName": "azureSynapseLinkedServiceDataSet",
-                        "type": "DatasetReference"
-                    }
-                ]
-            }
-        ],
-        "annotations": [],
     },
     "type": "Microsoft.DataFactory/factories/pipelines"
 }
@@ -1569,46 +1322,6 @@ AddCatalogToStorageAccountsRole -servicePrincipalId $ObjectIdpv ` -resourceName 
 $adlsStoreScope = "/subscriptions/$subscriptionId/resourceGroups/$CatalogResourceGroup/providers/Microsoft.Storage/storageAccounts/$AzureStorageGen2AccountName"
 AddCatalogToStorageAccountsRole -servicePrincipalId $ObjectIdpv ` -resourceName $CatalogName ` -StorageAccountName $AzureStorageGen2AccountName ` -storageScope $adlsStoreScope
 
-
-# ##
-# ## Upload data to the Azure Data Account
-# ##
-# if ($GenerateDataForAzureStorage -eq $true) {
-#     if (!$AzureStorageAccountName) {
-#         throw "Azure Storage Name needs to be specified"
-#     }
-#     if (!$AzureStorageResourceGroup) {
-#         throw "Azure Storage Resource Group needs to be specified"
-#     }
-#     $connectionString = GetAzureStorageConnectionString -AccountName $AzureStorageAccountName `
-#         -ResourceGroup $AzureStorageResourceGroup
-#     Start-Process -FilePath $dataGenerationPath `
-#         -ArgumentList "-nf 100 -n $rootContainer -s AzureStorage -c $connectionString" `
-#         -WorkingDirectory ".\dep\dataGenerator\" `
-#         -Wait
-
-# }
-
-
-# if ($CopyDataFromAzureStorageToGen2 -eq $true) {
-#     if (!$AzureStorageAccountName) {
-#         throw "Azure Storage Name needs to be specified"
-#     }
-#     if (!$AzureStorageResourceGroup) {
-#         throw "Azure Storage Resource Group needs to be specified"
-#     }
-#     if (!$AzureStorageGen2AccountName) {
-#         throw "Azure Storage Gen2 Name needs to be specified"
-#     }
-#     if (!$AzureStorageGen2ResourceGroup) {
-#         throw "Azure Storage Gen2 Resource Group needs to be specified"
-#     }
-#     if (!$DatafactoryAccountName) {
-#         throw "Data Factory Account Name must be defined"
-#     }
-# $azureStorageConnectionString = GetAzureStorageConnectionString -AccountName $AzureStorageAccountName `
-#     -ResourceGroup $AzureStorageResourceGroup
-
 $azureStorageAccessKey = GetAzureStorageConnectionString -AccountName $AzureStorageAccountName `
     -ResourceGroup $AzureStorageResourceGroup `
     -OnlyAccessKey true
@@ -1618,9 +1331,12 @@ New-AzRmStorageContainer -ResourceGroupName $AzureStorageResourceGroup -AccountN
 
 Get-ChildItem -Path ".\data_files\" -Recurse | Set-AzStorageBlobContent -Container $rootContainer -Context $storagecontext 
 
-# $azureStorageGen2ConnectionString = GetAzureStorageConnectionString -AccountName $AzureStorageGen2AccountName `
-#     -ResourceGroup $AzureStorageGen2ResourceGroup `
-#     -OnlyAccessKey
+$azureStorageConnectionString = GetAzureStorageConnectionString -AccountName $AzureStorageAccountName `
+    -ResourceGroup $AzureStorageResourceGroup
+$azureStorageGen2ConnectionString = GetAzureStorageConnectionString -AccountName $AzureStorageGen2AccountName `
+    -ResourceGroup $AzureStorageGen2ResourceGroup `
+    -OnlyAccessKey
+
 # Create the linked Services
 # TODO: remove hard-coded linkedService and dataset names
 CreateLinkedService -template $storageLinkedServiceDefinition `
@@ -1649,17 +1365,6 @@ CreateDataSet -dataSetName azureStorageGen2LinkedServiceDataSet `
     -dataFactoryName $DatafactoryAccountName `
     -resourceGroup $DatafactoryResourceGroup `
     -template $azureStorageGen2DataSet
-
-# # Create the Azure Data Factory Pipeline
-# CreatePipelineAndRunPipeline -pipelineTemplate $copyPipeline `
-#     -dataFactoryName $DatafactoryAccountName `
-#     -dataFactoryResourceGroup $DatafactoryResourceGroup `
-#     -azureStorageLinkedServiceDatasetName azureStorageLinkedServiceDataSet `
-#     -azureStorageGen2LinkedServiceDatasetName azureStorageGen2LinkedServiceDataSet `
-#     -name 'TestCopyPipeline'
-# }
-
-# Write-Output "Copy Data from Blob Store to ADLS Completed"
 
 ### ADF FROM ADLS TO SYNAPSE
 
@@ -1732,20 +1437,6 @@ CreateSynapseDataSet -dataSetName azureSynapseCredCardLinkedServiceDataSet `
     -resourceGroup $DatafactoryResourceGroup `
     -template $SynapseCredCardDataset
 
-# CreateSynapseDataSet -dataSetName azureSynapseLinkedServiceDataSet `
-#     -linkedServiceReference azureSynapseLinkedService `
-#     -dataFactoryName $DatafactoryAccountName `
-#     -resourceGroup $DatafactoryResourceGroup `
-#     -template $SynapseDataSet
-    
-# # Create the Azure Data Factory Pipeline
-# CreateSynapsePipelineAndRunPipeline -pipelineTemplate $copyPipelineGen2Synapse `
-#     -dataFactoryName $DatafactoryAccountName `
-#     -dataFactoryResourceGroup $DatafactoryResourceGroup `
-#     -azureSynapseLinkedServiceDatasetName "azureSynapseLinkedServiceDataSet" `
-#     -azureADLScsvLinkedServiceDatasetName "azureADLSCSVLinkedServiceDataSet" `
-#     -name "ADLSToSynapseCopyPipeline"
-
 Write-Output "Deploying pipeline"
 
 # Create the Azure Data Factory Pipeline
@@ -1756,26 +1447,6 @@ CreateMainPipelineAndRunPipeline -pipelineTemplate $mainPipeline `
     -azureADLScsvLinkedServiceDatasetName "azureADLSCSVLinkedServiceDataSet" `
     -name "ADLSToSynapseCopyPipeline"
 
-Write-Output "Copy Data from Blob Store to ADLS Completed"
-
-# ##
-# ## Upload temp data to the Azure Data Account which is not subject to copy activity
-# ##
-# if ($GenerateDataForAzureStoragetemp -eq $true) {
-#     if (!$AzureStorageAccountName) {
-#         throw "Azure Storage Name needs to be specified"
-#     }
-#     if (!$AzureStorageResourceGroup) {
-#         throw "Azure Storage Resource Group needs to be specified"
-#     }
-#     $connectionString = GetAzureStorageConnectionString -AccountName $AzureStorageAccountName `
-#         -ResourceGroup $AzureStorageResourceGroup
-#     Start-Process -FilePath $dataGenerationPath `
-#         -ArgumentList "-nf 50 -n $rootContainer2 -s AzureStorage -c $connectionString -e" `
-#         -WorkingDirectory ".\dep\dataGenerator\" `
-#         -Wait
-# }
-
-
+Write-Output "Blob to ADLS to Synapse pipeline deployment complete and triggered."
 
 Write-Output "Deployment Completed."
