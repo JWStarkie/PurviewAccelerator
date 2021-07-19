@@ -1,41 +1,47 @@
 # PurviewDemo
 
-## Need to figure out:
+### Need to figure out:
 
-- how to store credentials/managed identity to synapse
-- how to pass parameter down to nested scripts
-- how to do one click deployment
+- registering sources in Purview
+- triggering scans
+- upload glossary terms
 
-## Things to do:
+### Things to do: [Projects Board](https://github.com/lipinght/PurviewDemo/projects/1)
+
+- make location a parameter
+- make one click deployment
+- usage guide
+- GitHub Clone Analytics
+- PowerShell Usage Analytics
+- generate random resource group name **done**, SQL admin username and password 
+  - print this in console at the end 
+- REFACTORING!! 
+
+### Things done:
 
 - add synapse, **done**
 - add purview managed identity to synapse as db_owner/ or KV, **done**
 - pass parameter of name and location down to TemplatePurview.Json, **done**
-- add copy pipeline from gen2 to synapse (link synapse and adf using credentials/managed identity)
+- add copy pipeline from gen2 to synapse (link synapse and adf using credentials/managed identity) **done**
 - add creator of resources to Purview IAM (Access Control) **done**
-- make location a parameter
-- make one click deployment
+
+### Things we can't do:
+
 - make new service principal for SQL pool access
   - https://docs.microsoft.com/en-gb/azure/azure-sql/database/authentication-aad-configure?tabs=azure-powershell#provision-azure-ad-admin-sql-database
 - set active directory in SQL pool to service principal 
   - https://docs.microsoft.com/en-gb/azure/data-factory/connector-azure-sql-data-warehouse#using-managed-service-identity-authentication
   
- **OR**
--
-
-- try this with managed identity
-  - https://docs.microsoft.com/en-us/powershell/module/sqlserver/invoke-sqlcmd?view=sqlserver-ps&source=docs#examples
-
-
-## Purview Starter Kit Notes:
+### Purview Starter Kit Notes:
 
 - Creates Blob storage and populates account with data
 - Creates ADLS gen2
 - Creates ADF and associates the instance to Purview
-- Sets up and triggers a copy activity pipeline between the Blob storage and ADLS gen2 accounts
+- Sets up and triggers a copy activity pipeline between the Blob storage, ADLS gen2 accounts and Synapse SQL pool
 - Pushes the associated lineage from ADF to Purview
+- Assigns relevant permissions to register with Purview and trigger scans (*with exception of Synapse Analytics workspace - *see notes below*)
 
-## Notes
+### Implementation Notes
 
 - Need to run the entire deployment script in PowerShell (run as administrator)
 
@@ -55,7 +61,7 @@
 
     - Solution: Use: Import-Module AzureAD -UseWindowsPowerShell
 
-Error:
+    - Error:
 ``` Connect-AzureAD: C:\PurviewDemoHack\PurviewDemo\PurviewStarter\RunStarterKit.ps1:28
 Line |
   28 |  Connect-AzureAD
@@ -88,3 +94,5 @@ Line |
      | load type 'System.Security.Cryptography.SHA256Cng' from assembly 'System.Core, Version=4.0.0.0,
      | Culture=neutral, PublicKeyToken=b77a5c561934e089'.
 ```
+- Unable to create user in SQL pool for Purview Synapse Analytics data source scanning. this part will have to be manual due to restrictions on permissions within MSFT tenant.
+  - https://docs.microsoft.com/en-us/azure/purview/register-scan-synapse-workspace#register-and-scan-an-azure-synapse-workspace
