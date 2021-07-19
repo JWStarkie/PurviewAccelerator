@@ -11,8 +11,8 @@
 )
 
 ### Validation to make sure valid resource group name given before deployment process initiated. 
-if ($ResourceGroup -match '[^a-z0-9]') {
-    Write-Error "$ResourceGroup is not a valid resource group name for this deployment package. It must be between 3 and 24 characters in length and use numbers and lower-case letters only. Please re-run the RunStarterKit.ps1 script with a valid -ResourceGroup name." -ErrorAction Stop
+if ($ResourceGroup -match '[^a-z0-9]' -or ($ResourceGroup.Length) -gt 14 -or ($ResourceGroup.Length) -lt 3) {
+    Write-Error "$ResourceGroup is not a valid resource group name for this deployment package. It must be between 3 and 14 characters in length and use numbers and lower-case letters only. Please re-run the RunStarterKit.ps1 script with a valid -ResourceGroup name." -ErrorAction Stop
 }
 else {
     Write-Output "Resource group name validation passed, continuing with deployment scripts!"
@@ -65,6 +65,15 @@ if (-not (Get-InstalledModule Az.Synapse -MinimumVersion 0.12.0)) {
 else {
     Import-Module  -Name Az.Synapse
     Write-Output "Az.Synapse Module is already installed and Imported."
+}
+
+### Install SQLServer  Powershell cmdlet module
+Write-Output "Checking for SQLServer Module."
+if (-not (Get-InstalledModule -Name "SqlServer")) {
+    InstallSqlServerModule
+}
+else {
+    Write-Output "SqlServer Module is already installed."
 }
 
 ### Connect to AzAccount if not connected - once authenticated, display selected subscription and confirm with user the selection.

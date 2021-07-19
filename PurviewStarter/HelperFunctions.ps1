@@ -18,6 +18,12 @@ Function InstallAZAccountsModule () {
     Write-Output "Az.Accounts Module install complete."
 }
 
+Function InstallSqlServerModule () {
+    Write-Output "Installing SqlServer Module. Please wait for completion notification."
+    Import-Module -Name SqlServer -Scope CurrentUser -Force
+    Write-Output "SqlServer Module install complete."
+}
+
 Function InstallAZSynapseModule () {
     Write-Output "Installing Az.Synapse Module. Please wait for completion notification."
     Install-Module -Name Az.Synapse -Scope CurrentUser -Force

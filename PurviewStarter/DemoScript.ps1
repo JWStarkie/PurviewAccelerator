@@ -76,12 +76,13 @@ $storageGen2LinkedServiceDefinition = @"
 ###SynapseLinkedServiceinADFDef
 $synapseLinkedServiceDefinitions = @"
 {
-    "name": "<<name>>",
+    "name": "<<lsname>>",
     "properties": {
         "annotations": [],
         "type": "AzureSqlDW",
         "typeProperties": {
-            "connectionString": {
+            "connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=<<name>>.sql.azuresynapse.net;Initial Catalog=<<poolname>>;User ID=<<userid>>",
+            "password": {
                 "type": "AzureKeyVaultSecret",
                 "store": {
                     "referenceName": "<<keyvaultlinkedservicename>>",
@@ -93,6 +94,7 @@ $synapseLinkedServiceDefinitions = @"
     }
 }
 "@
+
 ##KeyVaultLinkedServiceinADFDef
 $keyVaultLinkedServiceDefinitions = @"
 {
@@ -116,16 +118,36 @@ $azureStorageBlobDataSet = @"
             "type": "LinkedServiceReference"
         },
         "annotations": [],
-        "type": "Binary",
+        "type": "DelimitedText",
         "typeProperties": {
             "location": {
                 "type": "AzureBlobStorageLocation",
-                "folderPath": "*",
                 "container": "<<filesystemname>>"
+            },
+            "columnDelimiter": ",",
+            "escapeChar": "\\",
+            "firstRowAsHeader": true,
+            "quoteChar": "\""
+        },
+        "schema": [
+            {
+                "name": "ip_address",
+                "type": "String"
+            },
+            {
+                "name": "IBAN",
+                "type": "String"
+            },
+            {
+                "name": "id",
+                "type": "String"
+            },
+            {
+                "name": "first_name",
+                "type": "String"
             }
-        }
-    },
-    "type": "Microsoft.DataFactory/factories/datasets"
+        ]
+    }
 }
 "@
 
@@ -138,19 +160,181 @@ $azureStorageGen2DataSet = @"
             "type": "LinkedServiceReference"
         },
         "annotations": [],
-        "type": "Binary",
+        "type": "DelimitedText",
         "typeProperties": {
             "location": {
                 "type": "AzureBlobFSLocation",
                 "fileSystem": "<<filesystemname>>"
+            },
+            "columnDelimiter": ",",
+            "escapeChar": "\\",
+            "firstRowAsHeader": true,
+            "quoteChar": "\""
+        },
+        "schema": [
+            {
+                "name": "ip_address",
+                "type": "String"
+            },
+            {
+                "name": "IBAN",
+                "type": "String"
+            },
+            {
+                "name": "id",
+                "type": "String"
+            },
+            {
+                "name": "first_name",
+                "type": "String"
             }
-        }
-    },
-    "type": "Microsoft.DataFactory/factories/datasets"
+        ]
+    }
 }
 "@
-## SynapseDataset, need to revisit schema and table name
-$SynapseDataSet = @"
+
+$ADLSCSVCustomerData = @"
+{
+    "name": "<<datasetname>>",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "<<linkedServiceName>>",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "DelimitedText",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileName": "customer_data.csv",
+                "fileSystem": "starter1"
+            },
+            "columnDelimiter": ",",
+            "escapeChar": "\\",
+            "firstRowAsHeader": true,
+            "quoteChar": "\""
+        },
+        "schema": [
+            {
+                "name": "id",
+                "type": "String"
+            },
+            {
+                "name": "first_name",
+                "type": "String"
+            },
+            {
+                "name": "last_name",
+                "type": "String"
+            },
+            {
+                "name": "email",
+                "type": "String"
+            },
+            {
+                "name": "gender",
+                "type": "String"
+            },
+            {
+                "name": "ip_address",
+                "type": "String"
+            }
+        ]
+    }
+}
+"@
+
+$ADLSCSVCustomerAddress = @"
+{
+    "name": "<<datasetname>>",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "<<linkedServiceName>>",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "DelimitedText",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileName": "customer_address.csv",
+                "fileSystem": "starter1"
+            },
+            "columnDelimiter": ",",
+            "escapeChar": "\\",
+            "firstRowAsHeader": true,
+            "quoteChar": "\""
+        },
+        "schema": [
+            {
+                "name": "id",
+                "type": "String"
+            },
+            {
+                "name": "street_address",
+                "type": "String"
+            },
+            {
+                "name": "country",
+                "type": "String"
+            },
+            {
+                "name": "postcode",
+                "type": "String"
+            },
+            {
+                "name": "phone",
+                "type": "String"
+            }
+        ]
+    }
+}
+"@
+
+$ADLSCSVCreditCardNo = @"
+{
+    "name": "<<datasetname>>",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "<<linkedServiceName>>",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "DelimitedText",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileName": "creditcard_info.csv",
+                "fileSystem": "starter1"
+            },
+            "columnDelimiter": ",",
+            "escapeChar": "\\",
+            "firstRowAsHeader": true,
+            "quoteChar": "\""
+        },
+        "schema": [
+            {
+                "name": "id",
+                "type": "String"
+            },
+            {
+                "name": "creditcardno",
+                "type": "String"
+            },
+            {
+                "name": "ccardtype",
+                "type": "String"
+            },
+            {
+                "name": "ccardcountry",
+                "type": "String"
+            }
+        ]
+    }
+}
+"@
+
+$SynapseDataSetCustInfo = @"
 {
     "name": "<<datasetName>>",
     "properties": {
@@ -160,24 +344,124 @@ $SynapseDataSet = @"
         },
         "annotations": [],
         "type": "AzureSqlDWTable",
-        "typeProperties": {
-            "schema": "<<SchemaName>>",
-            "table": "<<TableName>>"
+        "schema": [
+            {
+                "name": "id",
+                "type": "int",
+                "precision": 10
+            },
+            {
+                "name": "first_name",
+                "type": "varchar"
+            },
+            {
+                "name": "last_name",
+                "type": "varchar"
+            },
+            {
+                "name": "email",
+                "type": "varchar"
+            },
+            {
+                "name": "gender",
+                "type": "varchar"
+            },
+            {
+                "name": "ip_address",
+                "type": "varchar"
             }
+        ],
+        "typeProperties": {
+            "schema": "dbo",
+            "table": "CustomerInfo"
         }
-    },
-    "type": "Microsoft.DataFactory/factories/datasets"
+    }
 }
 "@
-## Original copy pipeline
-$copyPipeline = @"
+
+$SynapseCustomerAddressDataSet = @"
 {
-    "name": "demo_<<name>>",
+    "name": "<<datasetName>>",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "<<linkedServiceName>>",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "AzureSqlDWTable",
+        "schema": [
+            {
+                "name": "id",
+                "type": "int",
+                "precision": 10
+            },
+            {
+                "name": "street_address",
+                "type": "varchar"
+            },
+            {
+                "name": "country",
+                "type": "varchar"
+            },
+            {
+                "name": "postcode",
+                "type": "varchar"
+            }
+        ],
+        "typeProperties": {
+            "schema": "dbo",
+            "table": "CustomerAddress"
+        }
+    }
+}
+"@
+
+$SynapseCredCardDataset = @"
+{
+    "name": "<<datasetName>>",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "<<linkedServiceName>>",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "AzureSqlDWTable",
+        "schema": [
+            {
+                "name": "id",
+                "type": "int",
+                "precision": 10
+            },
+            {
+                "name": "creditcardno",
+                "type": "varchar"
+            },
+            {
+                "name": "ccardtype",
+                "type": "varchar"
+            },
+            {
+                "name": "ccardcountry",
+                "type": "varchar"
+            }
+        ],
+        "typeProperties": {
+            "schema": "dbo",
+            "table": "CreditCardInfo"
+        }
+    }
+}
+"@
+
+$mainPipeline = @"
+{
+    "name": "ADLSToSynapseCopyPipeline",
     "properties": {
         "activities": [
             {
-                "name": "<<name>>",
+                "name": "CopytoADLS",
                 "type": "Copy",
+                "dependsOn": [],
                 "policy": {
                     "timeout": "0.01:00:00",
                     "retry": 0,
@@ -188,49 +472,54 @@ $copyPipeline = @"
                 "userProperties": [],
                 "typeProperties": {
                     "source": {
-                        "type": "BinarySource",
+                        "type": "DelimitedTextSource",
                         "storeSettings": {
                             "type": "AzureBlobStorageReadSettings",
                             "recursive": true,
-                            "wildcardFolderPath": "*"
+                            "wildcardFileName": "*",
+                            "enablePartitionDiscovery": false
+                        },
+                        "formatSettings": {
+                            "type": "DelimitedTextReadSettings"
                         }
                     },
                     "sink": {
-                        "type": "BinarySink",
+                        "type": "DelimitedTextSink",
                         "storeSettings": {
                             "type": "AzureBlobFSWriteSettings"
+                        },
+                        "formatSettings": {
+                            "type": "DelimitedTextWriteSettings",
+                            "quoteAllText": true,
+                            "fileExtension": ".txt"
                         }
                     },
                     "enableStaging": false
                 },
                 "inputs": [
                     {
-                        "referenceName": "<<azureStorageLinkedServiceDataSet>>",
+                        "referenceName": "azureStorageLinkedServiceDataSet",
                         "type": "DatasetReference"
                     }
                 ],
                 "outputs": [
                     {
-                        "referenceName": "<<azureStorageGen2LinkedServiceDataSet>>",
+                        "referenceName": "azureStorageGen2LinkedServiceDataSet",
                         "type": "DatasetReference"
                     }
                 ]
-            }
-        ]
-    },
-    "type": "Microsoft.DataFactory/factories/pipelines"
-}
-"@
-## copy pipeline from gen2 to synapse
-$copyPipelineGen2Synapse = @"
-{
-    "name": "demogen2Synapse_<<name>>",
-    "properties": {
-        "activities": [
+            },
             {
-                "name": "<<name>>",
+                "name": "Copycustomerdata",
                 "type": "Copy",
-                "dependsOn": [],
+                "dependsOn": [
+                    {
+                        "activity": "CopytoADLS",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
                 "policy": {
                     "timeout": "7.00:00:00",
                     "retry": 0,
@@ -241,40 +530,335 @@ $copyPipelineGen2Synapse = @"
                 "userProperties": [],
                 "typeProperties": {
                     "source": {
-                        "type": "BinarySource",
+                        "type": "DelimitedTextSource",
                         "storeSettings": {
                             "type": "AzureBlobFSReadSettings",
                             "recursive": true,
                             "enablePartitionDiscovery": false
+                        },
+                        "formatSettings": {
+                            "type": "DelimitedTextReadSettings"
                         }
                     },
                     "sink": {
-                        "type": "SqlDWSink",
-                        "allowPolyBase": true,
-                        "polyBaseSettings": {
-                            "rejectValue": 0,
-                            "rejectType": "value",
-                            "useTypeDefault": true
-                        }
+                        "type": "SqlDWSink"
                     },
-                    "enableStaging": false
+                    "enableStaging": false,
+                    "translator": {
+                        "type": "TabularTranslator",
+                        "mappings": [
+                            {
+                                "source": {
+                                    "name": "id",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "id",
+                                    "type": "Int32",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "first_name",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "first_name",
+                                    "type": "String",
+                                    "physicalType": "varchar"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "last_name",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "last_name",
+                                    "type": "String",
+                                    "physicalType": "varchar"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "email",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "email",
+                                    "type": "String",
+                                    "physicalType": "varchar"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "gender",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "gender",
+                                    "type": "String",
+                                    "physicalType": "varchar"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "ip_address",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "ip_address",
+                                    "type": "String",
+                                    "physicalType": "varchar"
+                                }
+                            }
+                        ],
+                        "typeConversion": true,
+                        "typeConversionSettings": {
+                            "allowDataTruncation": true,
+                            "treatBooleanAsNumber": false
+                        }
+                    }
                 },
                 "inputs": [
                     {
-                        "referenceName": "<<azureStorageGen2LinkedServiceDataSet>>",
+                        "referenceName": "azureADLSCSVCustomerDataLinkedServiceDataSet",
                         "type": "DatasetReference"
                     }
                 ],
                 "outputs": [
                     {
-                        "referenceName": "<<synapseLinkedServiceDataSet>>",
+                        "referenceName": "azureSynapseCustInfoLinkedServiceDataSet",
+                        "type": "DatasetReference"
+                    }
+                ]
+            },
+            {
+                "name": "Copycustomeraddress",
+                "type": "Copy",
+                "dependsOn": [
+                    {
+                        "activity": "CopytoADLS",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "source": {
+                        "type": "DelimitedTextSource",
+                        "storeSettings": {
+                            "type": "AzureBlobFSReadSettings",
+                            "recursive": true,
+                            "enablePartitionDiscovery": false
+                        },
+                        "formatSettings": {
+                            "type": "DelimitedTextReadSettings"
+                        }
+                    },
+                    "sink": {
+                        "type": "SqlDWSink"
+                    },
+                    "enableStaging": false,
+                    "translator": {
+                        "type": "TabularTranslator",
+                        "mappings": [
+                            {
+                                "source": {
+                                    "name": "id",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "id",
+                                    "type": "Int32",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "street_address",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "street_address",
+                                    "type": "String",
+                                    "physicalType": "varchar"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "country",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "country",
+                                    "type": "String",
+                                    "physicalType": "varchar"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "postcode",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "postcode",
+                                    "type": "String",
+                                    "physicalType": "varchar"
+                                }
+                            }
+                        ],
+                        "typeConversion": true,
+                        "typeConversionSettings": {
+                            "allowDataTruncation": true,
+                            "treatBooleanAsNumber": false
+                        }
+                    }
+                },
+                "inputs": [
+                    {
+                        "referenceName": "azureADLSCSVCustomerAddressLinkedServiceDataSet",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "azureSynapseCustAddLinkedServiceDataSet",
+                        "type": "DatasetReference"
+                    }
+                ]
+            },
+            {
+                "name": "Copycreditcardno",
+                "type": "Copy",
+                "dependsOn": [
+                    {
+                        "activity": "CopytoADLS",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "source": {
+                        "type": "DelimitedTextSource",
+                        "storeSettings": {
+                            "type": "AzureBlobFSReadSettings",
+                            "recursive": true,
+                            "enablePartitionDiscovery": false
+                        },
+                        "formatSettings": {
+                            "type": "DelimitedTextReadSettings"
+                        }
+                    },
+                    "sink": {
+                        "type": "SqlDWSink"
+                    },
+                    "enableStaging": false,
+                    "translator": {
+                        "type": "TabularTranslator",
+                        "mappings": [
+                            {
+                                "source": {
+                                    "name": "id",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "id",
+                                    "type": "Int32",
+                                    "physicalType": "int"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "creditcardno",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "creditcardno",
+                                    "type": "String",
+                                    "physicalType": "varchar"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "ccardtype",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "ccardtype",
+                                    "type": "String",
+                                    "physicalType": "varchar"
+                                }
+                            },
+                            {
+                                "source": {
+                                    "name": "ccardcountry",
+                                    "type": "String",
+                                    "physicalType": "String"
+                                },
+                                "sink": {
+                                    "name": "ccardcountry",
+                                    "type": "String",
+                                    "physicalType": "varchar"
+                                }
+                            }
+                        ],
+                        "typeConversion": true,
+                        "typeConversionSettings": {
+                            "allowDataTruncation": true,
+                            "treatBooleanAsNumber": false
+                        }
+                    }
+                },
+                "inputs": [
+                    {
+                        "referenceName": "azureADLSCSVCreditCardNoLinkedServiceDataSet",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "azureSynapseCredCardLinkedServiceDataSet",
                         "type": "DatasetReference"
                     }
                 ]
             }
         ],
-        "annotations": []
-    }
+        "annotations": [],
+        "lastPublishTime": "2021-07-13T08:54:16Z"
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
 }
 "@
 
@@ -335,13 +919,6 @@ function UpdateAzureDataFactoryV2 {
         }
         else {
             return $dataFactory
-            # Start-Sleep -Seconds 60
-            # $dataFactoryPrincipalId = $dataFactory.Identity.PrincipalId
-            # Write-Output "Setting the Managed Identity $dataFactoryPrincipalId on the Catalog: $CatalogName"
-            # AddPurviewDataCuratorManagedIdentityToCatalog -servicePrincipalId $dataFactoryPrincipalId `
-            #     -catalogName $CatalogName `
-            #     -subscriptionId $SubscriptionId `
-            #     -catalogResourceGroup $CatalogResourceGroup
         }
     }
     else {
@@ -428,6 +1005,40 @@ function CreateLinkedService (
     Remove-Item "$name.json" -ErrorAction SilentlyContinue
 }
 
+function CreateKeyVaultLinkedService (
+    [string] $template,
+    [string] $name,
+    [string] $accountName,
+    [string] $dataFactoryName,
+    [string] $resourceGroup) {
+    Remove-Item "$name.json" -ErrorAction SilentlyContinue
+    $linkedService = (($template -replace "<<keyvaultlinkedservicename>>", "$name") -replace "<<keyvaultname>>", "$KeyVaultName") 
+    $linkedService | Out-File "$name.json"
+    Set-AzDataFactoryV2LinkedService -DataFactoryName $dataFactoryName `
+        -ResourceGroupName $resourceGroup `
+        -Name $name `
+        -DefinitionFile "$name.json" `
+        -Force
+    Remove-Item "$name.json" -ErrorAction SilentlyContinue
+}
+
+function CreateSynapseLinkedService (
+    [string] $template,
+    [string] $name,
+    [string] $dataFactoryName,
+    [string] $resourceGroup,
+    [string] $sqlPoolName) {
+    Remove-Item "$name.json" -ErrorAction SilentlyContinue
+    $linkedService = ((((($template -replace "<<name>>", "$SynapseWorkspaceName") -replace "<<keyvaultlinkedservicename>>", "azureKeyVaultLinkedService") -replace "<<secretname>>", "SQLPassword") -replace "<<poolname>>", $sqlPoolName) -replace "<<userid>>", $SqlUser) -replace "<<lsname>>", $name
+    $linkedService | Out-File "$name.json"
+    Set-AzDataFactoryV2LinkedService -DataFactoryName $dataFactoryName `
+        -ResourceGroupName $resourceGroup `
+        -Name $name `
+        -DefinitionFile "$name.json" `
+        -Force
+    Remove-Item "$name.json" -ErrorAction SilentlyContinue
+}
+
 function CreatePipelineAndRunPipeline (
     [string] $pipelineTemplate,
     [string] $name,
@@ -451,6 +1062,44 @@ function CreatePipelineAndRunPipeline (
     Remove-Item $fileName -ErrorAction SilentlyContinue
 }
 
+function CreateSynapsePipelineAndRunPipeline (
+    [string] $pipelineTemplate,
+    [string] $name,
+    [string] $dataFactoryName,
+    [string] $dataFactoryResourceGroup) {
+    
+    $fileName = "pipeline-$name.json"
+    Remove-Item $fileName -ErrorAction SilentlyContinue
+    
+    $pipelineTemplate | Out-File $fileName
+    
+    Set-AzDataFactoryV2Pipeline -Name $name -ResourceGroupName $dataFactoryResourceGroup -DataFactoryName $dataFactoryName -DefinitionFile $fileName -Force
+    
+    $runId = Invoke-AzDataFactoryV2Pipeline -ResourceGroupName $dataFactoryResourceGroup -DataFactoryName $dataFactoryName -PipelineName $name
+    
+    Write-Host "Executing Copy pipeline $runId"
+    Remove-Item $fileName -ErrorAction SilentlyContinue
+}
+
+function CreateMainPipelineAndRunPipeline (
+    [string] $pipelineTemplate,
+    [string] $name,
+    [string] $dataFactoryName,
+    [string] $dataFactoryResourceGroup) {
+    
+    $fileName = "pipeline-$name.json"
+    Remove-Item $fileName -ErrorAction SilentlyContinue
+    
+    $pipelineTemplate | Out-File $fileName
+    
+    Set-AzDataFactoryV2Pipeline -Name $name -ResourceGroupName $dataFactoryResourceGroup -DataFactoryName $dataFactoryName -DefinitionFile $fileName -Force
+    
+    $runId = Invoke-AzDataFactoryV2Pipeline -ResourceGroupName $dataFactoryResourceGroup -DataFactoryName $dataFactoryName -PipelineName $name
+    
+    Write-Host "Executing Copy pipeline $runId"
+    Remove-Item $fileName -ErrorAction SilentlyContinue
+}
+
 #
 # Create the linked service
 #
@@ -470,6 +1119,42 @@ function CreateDataSet (
         -DataFactoryName $dataFactoryName `
         -ResourceGroupName $resourceGroup
     Remove-Item "$dataSetName.json" -ErrorAction SilentlyContinue
+}
+
+function CreateADLSCSVDataSet (
+    [string] $dataSetName,
+    [string] $linkedServiceReference,
+    [string] $dataFactoryName,
+    [string] $resourceGroup,
+    [string] $template) {
+    Remove-Item "$dataSetName.json" -ErrorAction SilentlyContinue
+    $dataSet = (($template -replace "<<datasetname>>", "$dataSetName") -replace "<<linkedServiceName>>", "$linkedServiceReference") 
+    $dataSet | Out-File "$dataSetName.json"
+    Set-AzDataFactoryV2Dataset -Name $dataSetName `
+        -DefinitionFile "$dataSetName.json" `
+        -Force `
+        -DataFactoryName $dataFactoryName `
+        -ResourceGroupName $resourceGroup
+    Remove-Item "$dataSetName.json" -ErrorAction SilentlyContinue
+}
+
+function CreateSynapseDataSet (
+    [string] $dataSetName,
+    [string] $linkedServiceReference,
+    [string] $dataFactoryName,
+    [string] $resourceGroup,
+    [string] $template) {
+    
+    $filename = "$dataSetName.json"
+    Remove-Item $filename -ErrorAction SilentlyContinue
+    
+    $dataSet = ($template -replace "<<datasetName>>", "$dataSetName") -replace "<<linkedServiceName>>", "$linkedServiceReference"
+    
+    $dataSet | Out-File "$dataSetName.json"
+    Set-AzDataFactoryV2Dataset -Name $dataSetName `
+        -DefinitionFile $filename -Force -DataFactoryName $dataFactoryName -ResourceGroupName $resourceGroup
+   
+    Remove-Item $filename -ErrorAction SilentlyContinue
 }
 
 function Get-AzCachedAccessToken() {
@@ -559,8 +1244,6 @@ if ($CreateAzureStorageAccount -eq $true) {
 
 Write-Output "Blob Storage Account Created"
 
-Start-Sleep -Seconds 60
-
 New-AzResourceGroupDeployment -ResourceGroupName $ResourceGroup -TemplateFile ".\purviewtemplate_variables.json"
 
 Write-Output "Purview Account Created"
@@ -646,10 +1329,9 @@ New-AzRoleAssignment @RoleAssignmentParams
 # To allow user access to the portal after resource creation
 New-AzSynapseFirewallRule -WorkspaceName $SynapseWorkspaceName -Name "UserAccessFirewallRule" -StartIpAddress "0.0.0.0" -EndIpAddress "255.255.255.255"
 
+$SQLPoolName = "SQLPool"
 # Create SQL pool in Synapse workspace
-New-AzSynapseSqlPool -WorkspaceName $SynapseWorkspaceName -Name "SQLPool" -PerformanceLevel DW100c
-
-## Invoke-Sqlcmd -Query "CREATE table dbo.NewTable" -ServerInstance "aajopurvac12345synapsews.sql.azuresynapse.net" -Database "testSQLPool" -Username "demogod" -Password "Password123!"
+New-AzSynapseSqlPool -WorkspaceName $SynapseWorkspaceName -Name  $SQLPoolName -PerformanceLevel DW100c
 
 Write-Output "Synapse Workspace Account Created"
 
@@ -671,6 +1353,8 @@ RoleAssignmentsToCatalog -servicePrincipalId $userADObjectId ` -subscriptionId $
 Write-Output "RoleAssignments in progress."
 # ADF access to Purview
 $dataFactoryPrincipalId = $createdDataFactory.Identity.PrincipalId
+Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -ObjectId $dataFactoryPrincipalId -PermissionsToSecrets get, set, delete, list
+
 Write-Output "Setting the Managed Identity $dataFactoryPrincipalId on the Catalog: $CatalogName"
 AddPurviewDataCuratorManagedIdentityToCatalog -servicePrincipalId $dataFactoryPrincipalId ` -resourceName $DatafactoryAccountName
 
@@ -688,104 +1372,131 @@ AddCatalogToStorageAccountsRole -servicePrincipalId $ObjectIdpv ` -resourceName 
 $adlsStoreScope = "/subscriptions/$subscriptionId/resourceGroups/$CatalogResourceGroup/providers/Microsoft.Storage/storageAccounts/$AzureStorageGen2AccountName"
 AddCatalogToStorageAccountsRole -servicePrincipalId $ObjectIdpv ` -resourceName $CatalogName ` -StorageAccountName $AzureStorageGen2AccountName ` -storageScope $adlsStoreScope
 
+$azureStorageAccessKey = GetAzureStorageConnectionString -AccountName $AzureStorageAccountName `
+    -ResourceGroup $AzureStorageResourceGroup `
+    -OnlyAccessKey true
+$storagecontext = New-AzStorageContext -StorageAccountName $AzureStorageAccountName -StorageAccountKey $azureStorageAccessKey
 
-##
-## Upload data to the Azure Data Account
-##
-if ($GenerateDataForAzureStorage -eq $true) {
-    if (!$AzureStorageAccountName) {
-        throw "Azure Storage Name needs to be specified"
-    }
-    if (!$AzureStorageResourceGroup) {
-        throw "Azure Storage Resource Group needs to be specified"
-    }
-    $connectionString = GetAzureStorageConnectionString -AccountName $AzureStorageAccountName `
-        -ResourceGroup $AzureStorageResourceGroup
-    Start-Process -FilePath $dataGenerationPath `
-        -ArgumentList "-nf 100 -n $rootContainer -s AzureStorage -c $connectionString" `
-        -WorkingDirectory ".\dep\dataGenerator\" `
-        -Wait
+New-AzRmStorageContainer -ResourceGroupName $AzureStorageResourceGroup -AccountName $AzureStorageAccountName -ContainerName $rootContainer 
 
-}
+Get-ChildItem -Path ".\data_files\" -Recurse | Set-AzStorageBlobContent -Container $rootContainer -Context $storagecontext 
 
-if ($CopyDataFromAzureStorageToGen2 -eq $true) {
-    if (!$AzureStorageAccountName) {
-        throw "Azure Storage Name needs to be specified"
-    }
-    if (!$AzureStorageResourceGroup) {
-        throw "Azure Storage Resource Group needs to be specified"
-    }
-    if (!$AzureStorageGen2AccountName) {
-        throw "Azure Storage Gen2 Name needs to be specified"
-    }
-    if (!$AzureStorageGen2ResourceGroup) {
-        throw "Azure Storage Gen2 Resource Group needs to be specified"
-    }
-    if (!$DatafactoryAccountName) {
-        throw "Data Factory Account Name must be defined"
-    }
-    $azureStorageConnectionString = GetAzureStorageConnectionString -AccountName $AzureStorageAccountName `
-        -ResourceGroup $AzureStorageResourceGroup
-    $azureStorageGen2ConnectionString = GetAzureStorageConnectionString -AccountName $AzureStorageGen2AccountName `
-        -ResourceGroup $AzureStorageGen2ResourceGroup `
-        -OnlyAccessKey
-    # Create the linked Services
-    # TODO: remove hard-coded linkedService and dataset names
-    CreateLinkedService -template $storageLinkedServiceDefinition `
-        -name azureStorageLinkedService `
-        -accessKey $azureStorageConnectionString `
-        -dataFactoryName $DatafactoryAccountName `
-        -resourceGroup $DatafactoryResourceGroup `
-        -accountName $AzureStorageAccountName
-    CreateDataSet -dataSetName azureStorageLinkedServiceDataSet `
-        -linkedServiceReference azureStorageLinkedService `
-        -container $rootContainer `
-        -dataFactoryName $DatafactoryAccountName `
-        -resourceGroup $DatafactoryResourceGroup `
-        -template $azureStorageBlobDataSet
+$azureStorageConnectionString = GetAzureStorageConnectionString -AccountName $AzureStorageAccountName `
+    -ResourceGroup $AzureStorageResourceGroup
+$azureStorageGen2ConnectionString = GetAzureStorageConnectionString -AccountName $AzureStorageGen2AccountName `
+    -ResourceGroup $AzureStorageGen2ResourceGroup `
+    -OnlyAccessKey
+
+# Create the linked Services
+# TODO: remove hard-coded linkedService and dataset names
+CreateLinkedService -template $storageLinkedServiceDefinition `
+    -name azureStorageLinkedService `
+    -accessKey $azureStorageConnectionString `
+    -dataFactoryName $DatafactoryAccountName `
+    -resourceGroup $DatafactoryResourceGroup `
+    -accountName $AzureStorageAccountName
+CreateDataSet -dataSetName azureStorageLinkedServiceDataSet `
+    -linkedServiceReference azureStorageLinkedService `
+    -container $rootContainer `
+    -dataFactoryName $DatafactoryAccountName `
+    -resourceGroup $DatafactoryResourceGroup `
+    -template $azureStorageBlobDataSet
     
-    # Create the datasets we'll copy from to
-    CreateLinkedService -template $storageGen2LinkedServiceDefinition `
-        -name azureStorageGen2LinkedService `
-        -accessKey $azureStorageGen2ConnectionString `
-        -dataFactoryName $DatafactoryAccountName `
-        -resourceGroup $DatafactoryResourceGroup `
-        -accountName $AzureStorageGen2AccountName
-    CreateDataSet -dataSetName azureStorageGen2LinkedServiceDataSet `
-        -linkedServiceReference azureStorageGen2LinkedService `
-        -container $rootContainer `
-        -dataFactoryName $DatafactoryAccountName `
-        -resourceGroup $DatafactoryResourceGroup `
-        -template $azureStorageGen2DataSet
+# Create the datasets we'll copy from to
+CreateLinkedService -template $storageGen2LinkedServiceDefinition `
+    -name azureStorageGen2LinkedService `
+    -accessKey $azureStorageGen2ConnectionString `
+    -dataFactoryName $DatafactoryAccountName `
+    -resourceGroup $DatafactoryResourceGroup `
+    -accountName $AzureStorageGen2AccountName
+CreateDataSet -dataSetName azureStorageGen2LinkedServiceDataSet `
+    -linkedServiceReference azureStorageGen2LinkedService `
+    -container $rootContainer `
+    -dataFactoryName $DatafactoryAccountName `
+    -resourceGroup $DatafactoryResourceGroup `
+    -template $azureStorageGen2DataSet
 
-    # Create the Azure Data Factory Pipeline
-    CreatePipelineAndRunPipeline -pipelineTemplate $copyPipeline `
-        -dataFactoryName $DatafactoryAccountName `
-        -dataFactoryResourceGroup $DatafactoryResourceGroup `
-        -azureStorageLinkedServiceDatasetName azureStorageLinkedServiceDataSet `
-        -azureStorageGen2LinkedServiceDatasetName azureStorageGen2LinkedServiceDataSet `
-        -name 'TestCopyPipeline'
-}
+### ADF FROM ADLS TO SYNAPSE
 
-Write-Output "Copy Data Completed"
+# Create Key Vault Linked Service
+CreateKeyVaultLinkedService -template $keyVaultLinkedServiceDefinitions `
+    -name azureKeyVaultLinkedService `
+    -dataFactoryName $DatafactoryAccountName `
+    -resourceGroup $DatafactoryResourceGroup `
+    -accountName $AzureStorageAccountName
 
-##
-## Upload temp data to the Azure Data Account which is not subject to copy activity
-##
-if ($GenerateDataForAzureStoragetemp -eq $true) {
-    if (!$AzureStorageAccountName) {
-        throw "Azure Storage Name needs to be specified"
-    }
-    if (!$AzureStorageResourceGroup) {
-        throw "Azure Storage Resource Group needs to be specified"
-    }
-    $connectionString = GetAzureStorageConnectionString -AccountName $AzureStorageAccountName `
-        -ResourceGroup $AzureStorageResourceGroup
-    Start-Process -FilePath $dataGenerationPath `
-        -ArgumentList "-nf 50 -n $rootContainer2 -s AzureStorage -c $connectionString -e" `
-        -WorkingDirectory ".\dep\dataGenerator\" `
-        -Wait
+# Create Synapse Analytics Linked Service
+CreateSynapseLinkedService -template $synapseLinkedServiceDefinitions `
+    -name azureSynapseLinkedService `
+    -dataFactoryName $DatafactoryAccountName `
+    -resourceGroup $DatafactoryResourceGroup `
+    -sqlPoolName $SQLPoolName
 
-}
+#  CREATE TABLE IN SYNAPSE SQL POOL
+Write-Output "CREATE TABLE [dbo].[CustomerAddress]  ( id int NULL, street_address VARCHAR(255) NULL, country VARCHAR(255) NULL, postcode VARCHAR(255) NULL ) WITH ( DISTRIBUTION = HASH (id), CLUSTERED COLUMNSTORE INDEX )"
+
+Invoke-Sqlcmd -Query "CREATE TABLE [dbo].[CustomerAddress]  ( id int NULL, street_address VARCHAR(255) NULL, country VARCHAR(255) NULL, postcode VARCHAR(255) NULL ) WITH ( DISTRIBUTION = HASH (id), CLUSTERED COLUMNSTORE INDEX )" -ServerInstance "$SynapseWorkspaceName.sql.azuresynapse.net" -Database $SQLPoolName -Username $SqlUser -Password $SqlPassword
+
+Write-Output "CREATE TABLE [dbo].[CustomerInfo]  ( id int NULL, first_name VARCHAR(255) NULL, last_name VARCHAR(255) NULL, email VARCHAR(255) NULL, gender VARCHAR(255) NULL, ip_address VARCHAR(255) NULL ) WITH ( DISTRIBUTION = HASH (id), CLUSTERED COLUMNSTORE INDEX )"
+
+Invoke-Sqlcmd -Query "CREATE TABLE [dbo].[CustomerInfo]  ( id int NULL, first_name VARCHAR(255) NULL, last_name VARCHAR(255) NULL, email VARCHAR(255) NULL, gender VARCHAR(255) NULL, ip_address VARCHAR(255) NULL ) WITH ( DISTRIBUTION = HASH (id), CLUSTERED COLUMNSTORE INDEX )" -ServerInstance "$SynapseWorkspaceName.sql.azuresynapse.net" -Database $SQLPoolName -Username $SqlUser -Password $SqlPassword
+
+Write-Output "CREATE TABLE [dbo].[CreditCardInfo]  ( id int NULL, creditcardno VARCHAR(255) NULL, ccardtype VARCHAR(255) NULL, ccardcountry VARCHAR(255) NULL ) WITH ( DISTRIBUTION = HASH (id), CLUSTERED COLUMNSTORE INDEX )" 
+
+Invoke-Sqlcmd -Query "CREATE TABLE [dbo].[CreditCardInfo]  ( id int NULL, creditcardno VARCHAR(255) NULL, ccardtype VARCHAR(255) NULL, ccardcountry VARCHAR(255) NULL ) WITH ( DISTRIBUTION = HASH (id), CLUSTERED COLUMNSTORE INDEX )" -ServerInstance "$SynapseWorkspaceName.sql.azuresynapse.net" -Database $SQLPoolName -Username $SqlUser -Password $SqlPassword
+
+CreateADLSCSVDataSet -dataSetName azureADLSCSVCustomerDataLinkedServiceDataSet `
+    -linkedServiceReference azureStorageGen2LinkedService `
+    -dataFactoryName $DatafactoryAccountName `
+    -resourceGroup $DatafactoryResourceGroup `
+    -template $ADLSCSVCustomerData
+
+CreateADLSCSVDataSet -dataSetName azureADLSCSVCustomerAddressLinkedServiceDataSet `
+    -linkedServiceReference azureStorageGen2LinkedService `
+    -dataFactoryName $DatafactoryAccountName `
+    -resourceGroup $DatafactoryResourceGroup `
+    -template $ADLSCSVCustomerAddress
+
+CreateADLSCSVDataSet -dataSetName azureADLSCSVCreditCardNoLinkedServiceDataSet `
+    -linkedServiceReference azureStorageGen2LinkedService `
+    -dataFactoryName $DatafactoryAccountName `
+    -resourceGroup $DatafactoryResourceGroup `
+    -template $ADLSCSVCreditCardNo
+
+# CreateADLSCSVDataSet -dataSetName azureADLSCSVLinkedServiceDataSet `
+#     -linkedServiceReference azureStorageGen2LinkedService `
+#     -dataFactoryName $DatafactoryAccountName `
+#     -resourceGroup $DatafactoryResourceGroup `
+#     -template $ADLSCSVDataSet
+
+CreateSynapseDataSet -dataSetName azureSynapseCustInfoLinkedServiceDataSet `
+    -linkedServiceReference azureSynapseLinkedService `
+    -dataFactoryName $DatafactoryAccountName `
+    -resourceGroup $DatafactoryResourceGroup `
+    -template $SynapseDataSetCustInfo
+
+CreateSynapseDataSet -dataSetName azureSynapseCustAddLinkedServiceDataSet `
+    -linkedServiceReference azureSynapseLinkedService `
+    -dataFactoryName $DatafactoryAccountName `
+    -resourceGroup $DatafactoryResourceGroup `
+    -template $SynapseCustomerAddressDataSet
+
+CreateSynapseDataSet -dataSetName azureSynapseCredCardLinkedServiceDataSet `
+    -linkedServiceReference azureSynapseLinkedService `
+    -dataFactoryName $DatafactoryAccountName `
+    -resourceGroup $DatafactoryResourceGroup `
+    -template $SynapseCredCardDataset
+
+Write-Output "Deploying pipeline"
+
+# Create the Azure Data Factory Pipeline
+CreateMainPipelineAndRunPipeline -pipelineTemplate $mainPipeline `
+    -dataFactoryName $DatafactoryAccountName `
+    -dataFactoryResourceGroup $DatafactoryResourceGroup `
+    -azureSynapseLinkedServiceDatasetName "azureSynapseLinkedServiceDataSet" `
+    -azureADLScsvLinkedServiceDatasetName "azureADLSCSVLinkedServiceDataSet" `
+    -name "ADLSToSynapseCopyPipeline"
+
+Write-Output "Blob to ADLS to Synapse pipeline deployment complete and triggered."
 
 Write-Output "Deployment Completed."
