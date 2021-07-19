@@ -1,6 +1,6 @@
 ﻿param (
     [string]$CatalogName = $ResourceGroup + "pv",
-    [string]$ResourceGroup,
+    [string]$ResourceGroup = "pdemo" + ( -join ((0..9) | Get-Random -Count 2)) + ( -join ((97..122) | Get-Random -Count 2 | % { [char]$_ })) + ( -join ((0..9) | Get-Random -Count 2)) + ( -join ((97..122) | Get-Random -Count 2 | % { [char]$_ })),
     [string]$CatalogResourceGroup = $ResourceGroup,
     [string]$StorageBlobName = $ResourceGroup + "adcblob",
     [string]$AdlsGen2Name = $ResourceGroup + "adcadls",
@@ -10,13 +10,13 @@
     [string]$SynapseWorkspaceName = $ResourceGroup + "synapsews"
 )
 
-### Validation to make sure valid resource group name given before deployment process initiated. 
-if ($ResourceGroup -match '[^a-z0-9]' -or ($ResourceGroup.Length) -gt 14 -or ($ResourceGroup.Length) -lt 3) {
-    Write-Error "$ResourceGroup is not a valid resource group name for this deployment package. It must be between 3 and 14 characters in length and use numbers and lower-case letters only. Please re-run the RunStarterKit.ps1 script with a valid -ResourceGroup name." -ErrorAction Stop
-}
-else {
-    Write-Output "Resource group name validation passed, continuing with deployment scripts!"
-}
+# ### Validation to make sure valid resource group name given before deployment process initiated. 
+# if ($ResourceGroup -cmatch "[^a-z0-9]" -or ($ResourceGroup.Length) -gt 14 -or ($ResourceGroup.Length) -lt 4) {
+#     Write-Error "$ResourceGroup is not a valid resource group name for this deployment package. It must be between 3 and 14 characters in length and use numbers and lower-case letters only. Please re-run the RunStarterKit.ps1 script with a valid -ResourceGroup name" -ErrorAction Stop
+# }
+# else {
+#     Write-Output "Resource group name validation passed, continuing with deployment scripts!"
+# }
 
 # Import helper functions script file
 . .\HelperFunctions.ps1
