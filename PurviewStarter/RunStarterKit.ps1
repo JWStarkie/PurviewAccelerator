@@ -1,38 +1,17 @@
-﻿# param (
-#     [string]$ResourceGroup  = GenerateResourceGroupName -length 3,
-#     [string]$CatalogName = $ResourceGroup + "pv",
-#     [string]$CatalogResourceGroup = $ResourceGroup,
-#     [string]$StorageBlobName = $ResourceGroup + "adcblob",
-#     [string]$AdlsGen2Name = $ResourceGroup + "adcadls",
-#     [string]$DataFactoryName = $ResourceGroup + "adcfactory",
-#     [string]$KeyVaultName = $ResourceGroup + "kv",
-#     [switch]$ConnectToAzure = $false,
-#     [string]$SynapseWorkspaceName = $ResourceGroup + "synapsews"
-# )
-
-# Import helper functions script file
+﻿# Import helper functions script file
 . .\HelperFunctions.ps1
 
-[string]$ResourceGroup  = GenerateResourceGroupName -length 3
+[string]$ResourceGroup = GenerateResourceGroupName -length 3
 [string]$CatalogName = $ResourceGroup + "pv"
 [string]$CatalogResourceGroup = $ResourceGroup
 [string]$StorageBlobName = $ResourceGroup + "adcblob"
 [string]$AdlsGen2Name = $ResourceGroup + "adcadls"
 [string]$DataFactoryName = $ResourceGroup + "adcfactory"
 [string]$KeyVaultName = $ResourceGroup + "kv"
-[switch]$ConnectToAzure = $false
 [string]$SynapseWorkspaceName = $ResourceGroup + "synapsews"
 [string]$SqlUser = GenerateSQLString -base "admin"
 [string]$SqlPassword = GenerateSQLString -base ""
 [string[]]$PurviewLocations = @("Australia East", "Brazil South", "Canada Central", "Central India", "East US", "East US 2", "South Central US", "Southeast Asia", "UK South", "West Europe")
-
-# ### Validation to make sure valid resource group name given before deployment process initiated. 
-# if ($ResourceGroup -cmatch "[^a-z0-9]" -or ($ResourceGroup.Length) -gt 14 -or ($ResourceGroup.Length) -lt 4) {
-#     Write-Error "$ResourceGroup is not a valid resource group name for this deployment package. It must be between 3 and 14 characters in length and use numbers and lower-case letters only. Please re-run the RunStarterKit.ps1 script with a valid -ResourceGroup name" -ErrorAction Stop
-# }
-# else {
-#     Write-Output "Resource group name validation passed, continuing with deployment scripts!"
-# }
 
 ### Install AzureAD Powershell cmdlet module
 Write-Output "Checking for AzureAD Module."
@@ -46,20 +25,21 @@ else {
 # Allow users to authenticate to allow for AD to connect for the Service principle authentication used by Purview in KeyVault.
 
 Write-Output "Check for AzureAD Module and Connect to AzureAD"
-if(-not(Get-Module -Name "AzureAD.Standard.Preview")){
+if (-not(Get-Module -Name "AzureAD.Standard.Preview")) {
     if (-not (Get-Module -Name "AzureAD")) {
         Import-Module AzureAD 
         Connect-AzureAD
-        Connect-AzAccount
+        ConnectAzAccount
     }
     else {
         Write-Output "AzureAD Module is already imported. Follow Instructions to Connect."
         Connect-AzureAD
-        Connect-AzAccount
+        ConnectAzAccount
     }
-} elseif (Get-Module -Name "AzureAD.Standard.Preview") {
+}
+elseif (Get-Module -Name "AzureAD.Standard.Preview") {
     Write-Output "AzureAD.Standard.Preview Module is already imported. Follow Instructions to Connect."
-    Connect-AzureAD
+    AzureAD.Standard.Preview\Connect-AzureAD
     Connect-AzAccount -UseDeviceAuthentication
 }
 
@@ -108,7 +88,7 @@ else {
 
 ### Connect to AzAccount if not connected - once authenticated, display selected subscription and confirm with user the selection.
 # if (-not (Get-AzContext)) {
-    ConnectAzAccount
+
 # }
 # else {
 #     Get-AzContext
