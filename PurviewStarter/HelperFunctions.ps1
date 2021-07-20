@@ -78,9 +78,9 @@ Function GenerateResourceGroupName($length) {
     $characters = @()
     for ($index = 0; $index -lt $length; $index++) {
         $characters += ( -join ((0..9) | Get-Random -Count 1))
-        $characters += ( -join ((97..122) | Get-Random -Count 1 | % { [char]$_ }))
+        $characters += ( -join ((97..122) | Get-Random -Count 1 | ForEach-Object { [char]$_ }))
     }
-    $characters = $characters | Sort-Object {Get-Random}
+    $characters = $characters | Sort-Object { Get-Random }
     $characters = -join $characters
     return $random + $characters
 }
@@ -92,12 +92,13 @@ Function GenerateSQLString([string] $base) {
         #SQL Password
         for ($index = 0; $index -lt 3; $index++) {
             $random += ((0..9) | Get-Random -Count 1)
-            $random += ((65..90) | Get-Random -Count 1 | % { [char]$_ })
-            $random += ((33, 35, 36, 37, 38) | Get-Random -Count 1 | % { [char]$_ })
-            $random += ((97..122) | Get-Random -Count 1 | % { [char]$_ })
+            $random += ((65..90) | Get-Random -Count 1 | ForEach-Object { [char]$_ })
+            $random += ((33, 35, 36, 37, 38) | Get-Random -Count 1 | ForEach-Object { [char]$_ })
+            $random += ((97..122) | Get-Random -Count 1 | ForEach-Object { [char]$_ })
         }
-        $random = $random | Sort-Object {Get-Random}
-    } else {
+        $random = $random | Sort-Object { Get-Random }
+    }
+    else {
         #SQL Username
         for ($index = 0; $index -lt 5; $index++) {
             $random += ( -join ((0..9) | Get-Random -Count 1))
