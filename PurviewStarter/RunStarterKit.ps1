@@ -1,14 +1,30 @@
-﻿param (
-    [string]$CatalogName = $ResourceGroup + "pv",
-    [string]$ResourceGroup = "pdemo" + ( -join ((0..9) | Get-Random -Count 2)) + ( -join ((97..122) | Get-Random -Count 2 | % { [char]$_ })) + ( -join ((0..9) | Get-Random -Count 2)) + ( -join ((97..122) | Get-Random -Count 2 | % { [char]$_ })),
-    [string]$CatalogResourceGroup = $ResourceGroup,
-    [string]$StorageBlobName = $ResourceGroup + "adcblob",
-    [string]$AdlsGen2Name = $ResourceGroup + "adcadls",
-    [string]$DataFactoryName = $ResourceGroup + "adcfactory",
-    [string]$KeyVaultName = $ResourceGroup + "kv",
-    [switch]$ConnectToAzure = $false,
-    [string]$SynapseWorkspaceName = $ResourceGroup + "synapsews"
-)
+﻿# param (
+#     [string]$ResourceGroup  = GenerateResourceGroupName -length 3,
+#     [string]$CatalogName = $ResourceGroup + "pv",
+#     [string]$CatalogResourceGroup = $ResourceGroup,
+#     [string]$StorageBlobName = $ResourceGroup + "adcblob",
+#     [string]$AdlsGen2Name = $ResourceGroup + "adcadls",
+#     [string]$DataFactoryName = $ResourceGroup + "adcfactory",
+#     [string]$KeyVaultName = $ResourceGroup + "kv",
+#     [switch]$ConnectToAzure = $false,
+#     [string]$SynapseWorkspaceName = $ResourceGroup + "synapsews"
+# )
+
+# Import helper functions script file
+. .\HelperFunctions.ps1
+
+[string]$ResourceGroup  = GenerateResourceGroupName -length 3
+[string]$CatalogName = $ResourceGroup + "pv"
+[string]$CatalogResourceGroup = $ResourceGroup
+[string]$StorageBlobName = $ResourceGroup + "adcblob"
+[string]$AdlsGen2Name = $ResourceGroup + "adcadls"
+[string]$DataFactoryName = $ResourceGroup + "adcfactory"
+[string]$KeyVaultName = $ResourceGroup + "kv"
+[switch]$ConnectToAzure = $false
+[string]$SynapseWorkspaceName = $ResourceGroup + "synapsews"
+[string]$SqlUser = GenerateSQLString -base "admin"
+[string]$SqlPassword = GenerateSQLString -base ""
+[string[]]$PurviewLocations = @("Australia East", "Brazil South", "Canada Central", "Central India", "East US", "East US 2", "South Central US", "Southeast Asia", "UK South", "West Europe")
 
 # ### Validation to make sure valid resource group name given before deployment process initiated. 
 # if ($ResourceGroup -cmatch "[^a-z0-9]" -or ($ResourceGroup.Length) -gt 14 -or ($ResourceGroup.Length) -lt 4) {
@@ -17,9 +33,6 @@
 # else {
 #     Write-Output "Resource group name validation passed, continuing with deployment scripts!"
 # }
-
-# Import helper functions script file
-. .\HelperFunctions.ps1
 
 # Allow users to authenticate to allow for AD to connect for the Service principle authentication used by Purview in KeyVault.
 Write-Output "Connect to AzureAD"
@@ -77,12 +90,12 @@ else {
 }
 
 ### Connect to AzAccount if not connected - once authenticated, display selected subscription and confirm with user the selection.
-if (-not (Get-AzContext)) {
+# if (-not (Get-AzContext)) {
     ConnectAzAccount
-}
-else {
-    Get-AzContext
-}
+# }
+# else {
+#     Get-AzContext
+# }
 
 ### Confirmation validation for user to confirm subscription.
 while ($finalres -ne 0) {
@@ -104,6 +117,14 @@ Write-Output "Subscription Name" $contextInfo.Subscription.Name
 Write-Output "Subscription ID: $contextSubscriptionId"
 Write-Output "Tenant ID: $contextTenantId" 
 
+
+### Confirmation validation for user to confirm location.
+$chosenLocation = New-MenuLocation -question "Do you wish to choose the location selected above? Press enter to continue with default selection." -locations $PurviewLocations
+
+$location = $PurviewLocations[$chosenLocation]
+
+Write-Output "You have chosen $location as your resource location."
+
 .\demoscript.ps1 -CreateAdfAccountIfNotExists `
     -UpdateAdfAccountTags `
     -DatafactoryAccountName $DataFactoryName `
@@ -123,4 +144,7 @@ Write-Output "Tenant ID: $contextTenantId"
     -CatalogResourceGroup $CatalogResourceGroup `
     -SynapseWorkspaceName $SynapseWorkspaceName `
     -KeyVaultName $KeyVaultName `
-    -SynapseResourceGroup $ResourceGroup
+    -SynapseResourceGroup $ResourceGroup `
+    -SqlUser $SqlUser `
+    -SqlPassword $SqlPassword `
+    -ResourcesLocation $location

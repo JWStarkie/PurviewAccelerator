@@ -39,7 +39,7 @@ Function ConnectAzAccount () {
 }
 
 # Function to ask the user for input
-function New-Menu ($question) {
+Function New-Menu ($question) {
     
     $title = "ACTION REQUIRED!"
     
@@ -48,6 +48,61 @@ function New-Menu ($question) {
     
     $options = [ChoiceDescription[]]($yes, $no)
     
-    $result = $host.ui.PromptForChoice($Title, $question, $options, 0)
+    $result = $host.ui.PromptForChoice($title, $question, $options, 0)
     return $result
+}
+
+Function New-MenuLocation ($question, $locations) {
+    $options = @()
+    $default = 0
+    $index = 0 #Temporary - need to work out way of first character being different for all options
+    foreach ($location in $locations) {
+        $options += [ChoiceDescription]::new("&$index $location", "$location is the location")
+
+        if ($location -eq "East US") {
+            $default = $index
+        }
+
+        $index = $index + 1
+    }
+    
+    $title = "ACTION REQUIRED!"
+    
+    $result = $host.ui.PromptForChoice($title, $question, $options, $default)
+    return $result
+}
+
+#Function that generates random letters and numbers for the resource group name
+Function GenerateResourceGroupName($length) {
+    $random = "pdemo"
+    $characters = @()
+    for ($index = 0; $index -lt $length; $index++) {
+        $characters += ( -join ((0..9) | Get-Random -Count 1))
+        $characters += ( -join ((97..122) | Get-Random -Count 1 | % { [char]$_ }))
+    }
+    $characters = $characters | Sort-Object {Get-Random}
+    $characters = -join $characters
+    return $random + $characters
+}
+
+#Function that generates random letters and numbers
+Function GenerateSQLString([string] $base) {
+    $random = @()
+    if ($base -eq "") {
+        #SQL Password
+        for ($index = 0; $index -lt 3; $index++) {
+            $random += ((0..9) | Get-Random -Count 1)
+            $random += ((65..90) | Get-Random -Count 1 | % { [char]$_ })
+            $random += ((33, 35, 36, 37, 38) | Get-Random -Count 1 | % { [char]$_ })
+            $random += ((97..122) | Get-Random -Count 1 | % { [char]$_ })
+        }
+        $random = $random | Sort-Object {Get-Random}
+    } else {
+        #SQL Username
+        for ($index = 0; $index -lt 5; $index++) {
+            $random += ( -join ((0..9) | Get-Random -Count 1))
+        }
+    }
+    $random = -join $random
+    return $base + $random
 }
