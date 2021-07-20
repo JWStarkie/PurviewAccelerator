@@ -60,8 +60,6 @@ if(-not(Get-Module -Name "AzureAD.Standard.Preview")){
     Connect-AzAccount -UseDeviceAuthentication
 }
 
-Write-Output ""
-
 Get-AzureADUser
 
 Write-Output "After AD Connection"
