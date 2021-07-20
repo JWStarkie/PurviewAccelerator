@@ -50,13 +50,16 @@ if(-not(Get-Module -Name "AzureAD.Standard.Preview")){
     if (-not (Get-Module -Name "AzureAD")) {
         Import-Module AzureAD 
         Connect-AzureAD
+        Connect-AzAccount
     }
     else {
         Write-Output "AzureAD Module is already imported. Follow Instructions to Connect."
         Connect-AzureAD
+        Connect-AzAccount
     }
 } elseif (Get-Module -Name "AzureAD.Standard.Preview") {
     Write-Output "AzureAD.Standard.Preview Module is already imported. Follow Instructions to Connect."
+    Connect-AzureAD
     Connect-AzAccount -UseDeviceAuthentication
 }
 
