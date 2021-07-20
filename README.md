@@ -8,13 +8,9 @@
 
 ### Things to do: [Projects Board](https://github.com/lipinght/PurviewDemo/projects/1)
 
-- make location a parameter
-- make one click deployment
 - usage guide
 - GitHub Clone Analytics
 - PowerShell Usage Analytics
-- generate random resource group name **done**, SQL admin username and password 
-  - print this in console at the end 
 - REFACTORING!! 
 
 ### Things done:
@@ -24,6 +20,9 @@
 - pass parameter of name and location down to TemplatePurview.Json, **done**
 - add copy pipeline from gen2 to synapse (link synapse and adf using credentials/managed identity) **done**
 - add creator of resources to Purview IAM (Access Control) **done**
+- make location a parameter **done**
+- generate random resource group name **done**, SQL admin username and password **done**
+  - print this in console at the end **done**
 
 ### Things we can't do:
 
@@ -31,6 +30,7 @@
   - https://docs.microsoft.com/en-gb/azure/azure-sql/database/authentication-aad-configure?tabs=azure-powershell#provision-azure-ad-admin-sql-database
 - set active directory in SQL pool to service principal 
   - https://docs.microsoft.com/en-gb/azure/data-factory/connector-azure-sql-data-warehouse#using-managed-service-identity-authentication
+  - make one click deployment
   
 ### Purview Starter Kit Notes:
 

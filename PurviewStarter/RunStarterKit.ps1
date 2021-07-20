@@ -125,7 +125,7 @@ $location = $PurviewLocations[$chosenLocation]
 
 Write-Output "You have chosen $location as your resource location."
 
-.\demoscript.ps1 -CreateAdfAccountIfNotExists `
+.\DemoScript.ps1 -CreateAdfAccountIfNotExists `
     -UpdateAdfAccountTags `
     -DatafactoryAccountName $DataFactoryName `
     -DatafactoryResourceGroup $ResourceGroup `
