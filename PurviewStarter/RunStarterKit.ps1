@@ -34,14 +34,6 @@
 #     Write-Output "Resource group name validation passed, continuing with deployment scripts!"
 # }
 
-# Allow users to authenticate to allow for AD to connect for the Service principle authentication used by Purview in KeyVault.
-Write-Output "Connect to AzureAD"
-
-Import-Module AzureAD 
-Connect-AzureAD
-
-Write-Output "After AD Connection"
-
 ### Install AzureAD Powershell cmdlet module
 Write-Output "Checking for AzureAD Module."
 if (-not (Get-InstalledModule -Name "AzureAD")) {
@@ -50,6 +42,23 @@ if (-not (Get-InstalledModule -Name "AzureAD")) {
 else {
     Write-Output "AzureAD Module is already installed."
 }
+
+# Allow users to authenticate to allow for AD to connect for the Service principle authentication used by Purview in KeyVault.
+
+Write-Output "Checking for AzureAD Module."
+if (-not (Get-Module -Name "AzureAD")) {
+    Import-Module AzureAD 
+}
+else {
+    Write-Output "AzureAD Module is already imported."
+}
+
+Write-Output "Connect to AzureAD"
+
+Connect-AzureAD
+
+Write-Output "After AD Connection"
+
 
 ### Install Az Powershell cmdlet module
 Write-Output "Checking for Az Module."
