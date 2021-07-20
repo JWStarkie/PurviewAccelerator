@@ -1,31 +1,32 @@
 ﻿param (
     [string]$TenantId,
     [string]$CatalogName,
+    [string]$ResourcesLocation,
     [string]$CatalogResourceGroup,
     [string]$SubscriptionId,
     [string]$DatafactoryResourceGroup,
     [string]$DatafactoryAccountName,
-    [string]$DatafactoryLocation = "East Us",
+    [string]$DatafactoryLocation = $ResourcesLocation,
     [switch]$ConnectToAzure = $false, 
     [switch]$CreateAdfAccountIfNotExists = $false,
     [switch]$UpdateAdfAccountTags = $false,
     [switch]$CreateAzureStorageAccount = $false,
     [string]$AzureStorageAccountName,
     [string]$AzureStorageResourceGroup,
-    [string]$AzureStorageLocation = "East Us",
+    [string]$AzureStorageLocation = $ResourcesLocation,
     [switch]$CreateAzureStorageGen2Account = $false,
     [string]$AzureStorageGen2AccountName,
     [string]$AzureStorageGen2ResourceGroup,
-    [string]$AzureStorageGen2Location = "East Us",
+    [string]$AzureStorageGen2Location = $ResourcesLocation,
     [switch]$GenerateDataForAzureStorage = $false,
     [switch]$GenerateDataForAzureStoragetemp = $false,
     [switch]$CopyDataFromAzureStorageToGen2 = $false,
-    [string]$SqlUser = "demogod",
-    [string]$SqlPassword = "Password123!",
+    [string]$SqlUser,
+    [string]$SqlPassword,
     [string]$SynapseWorkspaceName,
     [string]$SynapseResourceGroup,
     [string]$FileShareName = "raw",
-    [string]$Region = "East Us",
+    [string]$Region = $ResourcesLocation,
     [string]$RoleDef = "Storage Blob Data Contributor",
     [string]$KeyVaultName ,
     [string]$SynapseScope = "/subscriptions/$SubscriptionId/resourceGroups/$SynapseResourceGroup/providers/Microsoft.Storage/storageAccounts/$AzureStorageGen2AccountName"
@@ -468,10 +469,10 @@ Write-Output $ObjectIdpv
 $usercontextAccountId = (Get-AzContext).account.id
 Write-Output $usercontextAccountId
 
-New-AzKeyVault -Name $KeyVaultName -ResourceGroupName $ResourceGroup -Location "East US"
+New-AzKeyVault -Name $KeyVaultName -ResourceGroupName $ResourceGroup -Location $ResourcesLocation
 Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -UserPrincipalName $usercontextAccountId -PermissionsToSecrets get, set, delete, list
 Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -ObjectId $ObjectIdpv -PermissionsToSecrets get, set, delete, list
-$secretvalue = ConvertTo-SecureString "Password123!" -AsPlainText -Force
+$secretvalue = ConvertTo-SecureString $SqlPassword -AsPlainText -Force
 Set-AzKeyVaultSecret -VaultName $KeyVaultName -Name "SQLPassword" -SecretValue $secretvalue
 
 Write-Output "Key Vault Account Created"
@@ -675,3 +676,7 @@ CreateMainPipelineAndRunPipeline -pipelineTemplate $mainPipeline `
 Write-Output "Blob to ADLS to Synapse pipeline deployment complete and triggered."
 
 Write-Output "Deployment Completed."
+
+Write-Output "Your resource group is called $CatalogResourceGroup"
+Write-Output "Your SQL username is $SqlUser"
+Write-Output "Your SQL password is $SqlPassword"
