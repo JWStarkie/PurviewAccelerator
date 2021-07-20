@@ -511,6 +511,16 @@ New-AzSynapseSqlPool -WorkspaceName $SynapseWorkspaceName -Name  $SQLPoolName -P
 
 Write-Output "Synapse Workspace Account Created"
 
+if (@(Get-AzureADUser -ObjectId $usercontextAccountId).Count -eq 0) {
+    Write-Output "Log in timed out, please log in again."
+    if(Get-Module -Name "AzureAD"){
+        Connect-AzureAD
+    } elseif (Get-Module -Name "AzureAD.Standard.Preview") {
+        Write-Output "AzureAD.Standard.Preview Module is already imported. Follow Instructions to Connect."
+        Connect-AzAccount -UseDeviceAuthentication
+    }
+}
+
 $userADObjectId = (Get-AzureADUser -ObjectId $usercontextAccountId).ObjectId
 # User access to resource group 
 Write-output "Giving User Owner access over resource group."
