@@ -57,6 +57,8 @@ Write-Output "Connect to AzureAD"
 
 Connect-AzureAD
 
+Get-AzureADUser
+
 Write-Output "After AD Connection"
 
 
