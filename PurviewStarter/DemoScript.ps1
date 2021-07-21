@@ -32,6 +32,17 @@
     [string]$SynapseScope = "/subscriptions/$SubscriptionId/resourceGroups/$SynapseResourceGroup/providers/Microsoft.Storage/storageAccounts/$AzureStorageGen2AccountName"
 )
 
+##
+## API call to record usage for analytics
+## 
+$APIParameters = @{
+    Method      = "POST"
+    Uri         = "https://puraccanalytics-fa.azurewebsites.net/api/PAccAnalytics-FApp"
+    ContentType = "application/json"
+}
+
+Invoke-RestMethod $APIParameters
+
 $rootContainer = "starter1"
 
 # Import Definition File variables 
@@ -513,9 +524,10 @@ Write-Output "Synapse Workspace Account Created"
 
 if (@(Get-AzureADUser -ObjectId $usercontextAccountId).Count -eq 0) {
     Write-Output "Log in timed out, please log in again."
-    if(Get-Module -Name "AzureAD"){
+    if (Get-Module -Name "AzureAD") {
         Connect-AzureAD
-    } elseif (Get-Module -Name "AzureAD.Standard.Preview") {
+    }
+    elseif (Get-Module -Name "AzureAD.Standard.Preview") {
         Write-Output "AzureAD.Standard.Preview Module is already imported. Follow Instructions to Connect."
         Connect-AzAccount -UseDeviceAuthentication
     }
