@@ -1,4 +1,4 @@
-# PurviewDemo
+# Purview Accelerator
 
 ### Need to figure out:
 
@@ -6,7 +6,7 @@
 - triggering scans
 - upload glossary terms
 
-### Things to do: [Projects Board](https://github.com/lipinght/PurviewDemo/projects/1)
+### Things to do: [Projects Board](https://github.com/JWStarkie/PurviewAccelerator/projects)
 
 - usage guide
 - REFACTORING!! 
@@ -69,7 +69,7 @@
     - Solution: Use: Import-Module AzureAD -UseWindowsPowerShell
 
     - Error:
-``` Connect-AzureAD: C:\PurviewDemoHack\PurviewDemo\PurviewStarter\RunStarterKit.ps1:28
+``` Connect-AzureAD: C:\PurviewmoHack\PurviewAccelerator\PurviewStarter\RunStarterKit.ps1:28
 Line |
   28 |  Connect-AzureAD
      |  ~~~~~~~~~~~~~~~
@@ -78,21 +78,21 @@ Line |
      | load type 'System.Security.Cryptography.SHA256Cng' from assembly 'System.Core, Version=4.0.0.0,
      | Culture=neutral, PublicKeyToken=b77a5c561934e089'.
 
-Connect-AzureAD: C:\PurviewDemoHack\PurviewDemo\PurviewStarter\RunStarterKit.ps1:28
+Connect-AzureAD: C:\PurviewAcceleratorHack\PurviewAccelerator\PurviewStarter\RunStarterKit.ps1:28
 Line |
   28 |  Connect-AzureAD
      |  ~~~~~~~~~~~~~~~
      | One or more errors occurred. (Could not load type 'System.Security.Cryptography.SHA256Cng' from
      | assembly 'System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.)
 
-Connect-AzureAD: C:\PurviewDemoHack\PurviewDemo\PurviewStarter\RunStarterKit.ps1:28
+Connect-AzureAD: C:\PurviewAcceleratorHack\PurviewAccelerator\PurviewStarter\RunStarterKit.ps1:28
 Line |
   28 |  Connect-AzureAD
      |  ~~~~~~~~~~~~~~~
      | Could not load type 'System.Security.Cryptography.SHA256Cng' from assembly 'System.Core,
      | Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089'.
 
-Connect-AzureAD: C:\PurviewDemoHack\PurviewDemo\PurviewStarter\RunStarterKit.ps1:28
+Connect-AzureAD: C:\PurviewAcceleratorHack\PurviewAccelerator\PurviewStarter\RunStarterKit.ps1:28
 Line |
   28 |  Connect-AzureAD
      |  ~~~~~~~~~~~~~~~
