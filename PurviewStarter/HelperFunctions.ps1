@@ -40,14 +40,10 @@ Function ConnectAzAccount () {
 
 # Function to ask the user for input
 Function New-Menu ($question) {
-    
     $title = "ACTION REQUIRED!"
-    
     $yes = [ChoiceDescription]::new('&Yes', 'Yes you are happy')
     $no = [ChoiceDescription]::new('&No', 'No you would like to change')
-    
     $options = [ChoiceDescription[]]($yes, $no)
-    
     $result = $host.ui.PromptForChoice($title, $question, $options, 0)
     return $result
 }
@@ -58,16 +54,12 @@ Function New-MenuLocation ($question, $locations) {
     $index = 0 #Temporary - need to work out way of first character being different for all options
     foreach ($location in $locations) {
         $options += [ChoiceDescription]::new("&$index $location", "$location is the location")
-
-        if ($location -eq "East US") {
+        if ($location -eq "Brazil South") {
             $default = $index
         }
-
         $index = $index + 1
     }
-    
-    $title = "ACTION REQUIRED!"
-    
+    $title = "ACTION REQUIRED!"    
     $result = $host.ui.PromptForChoice($title, $question, $options, $default)
     return $result
 }

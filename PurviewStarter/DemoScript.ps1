@@ -7,7 +7,6 @@
     [string]$DatafactoryResourceGroup,
     [string]$DatafactoryAccountName,
     [string]$DatafactoryLocation = $ResourcesLocation,
-    [switch]$ConnectToAzure = $false, 
     [switch]$CreateAdfAccountIfNotExists = $false,
     [switch]$UpdateAdfAccountTags = $false,
     [switch]$CreateAzureStorageAccount = $false,
@@ -18,9 +17,6 @@
     [string]$AzureStorageGen2AccountName,
     [string]$AzureStorageGen2ResourceGroup,
     [string]$AzureStorageGen2Location = $ResourcesLocation,
-    [switch]$GenerateDataForAzureStorage = $false,
-    [switch]$GenerateDataForAzureStoragetemp = $false,
-    [switch]$CopyDataFromAzureStorageToGen2 = $false,
     [string]$SqlUser,
     [string]$SqlPassword,
     [string]$SynapseWorkspaceName,
@@ -32,16 +28,15 @@
     [string]$SynapseScope = "/subscriptions/$SubscriptionId/resourceGroups/$SynapseResourceGroup/providers/Microsoft.Storage/storageAccounts/$AzureStorageGen2AccountName"
 )
 
-##
-## API call to record usage for analytics
-## 
+$ErrorActionPreference = "Stop"
+
 $APIParameters = @{
     Method      = "POST"
     Uri         = "https://puraccanalytics-fa.azurewebsites.net/api/PAccAnalytics-FApp"
     ContentType = "application/json"
 }
 
-Invoke-RestMethod $APIParameters
+Invoke-RestMethod @APIParameters
 
 $rootContainer = "starter1"
 

@@ -9,9 +9,14 @@
 ### Things to do: [Projects Board](https://github.com/lipinght/PurviewDemo/projects/1)
 
 - usage guide
-- GitHub Clone Analytics
-- PowerShell Usage Analytics
 - REFACTORING!! 
+- Purview
+  - Register sources
+  - Trigger scan
+  - Upload glossary terms
+- Synapse - integration
+- ADF integration
+- Power BI Dashboard to view usage analytics
 
 ### Things done:
 
@@ -23,6 +28,8 @@
 - make location a parameter **done**
 - generate random resource group name **done**, SQL admin username and password **done**
   - print this in console at the end **done**
+- PowerShell Usage Analytics **done**
+- GitHub Clone Analytics **done**
 
 ### Things we can't do:
 

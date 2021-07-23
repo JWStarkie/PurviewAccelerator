@@ -8,21 +8,23 @@
   "resources": [
     {
       "type": "Microsoft.Purview/accounts",
-      "apiVersion": "2020-12-01-preview",
       "name": "[variables('name')]",
+      "apiVersion": "2020-12-01-preview",
       "location": "[variables('location')]",
-      "dependsOn": [],
-      "tags": { "bypass": "true" },
-      "sku": {
-        "name": "Standard",
-        "capacity": 4
-      },
       "identity": {
         "type": "SystemAssigned"
       },
       "properties": {
-        "publicNetworkAccess": "Enabled"
-      }
+        "networkAcls": {
+          "defaultAction": "Allow"
+        }
+      },
+      "dependsOn": [],
+      "sku": {
+        "name": "Standard",
+        "capacity": "4"
+      },
+      "tags": {}
     }
   ],
   "outputs": {}

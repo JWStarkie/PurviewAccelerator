@@ -1,4 +1,6 @@
-﻿# Import helper functions script file
+﻿$ErrorActionPreference = "Stop"
+
+# Import helper functions script file
 . .\HelperFunctions.ps1
 
 [string]$ResourceGroup = GenerateResourceGroupName -length 3
@@ -12,41 +14,6 @@
 [string]$SqlUser = GenerateSQLString -base "admin"
 [string]$SqlPassword = GenerateSQLString -base ""
 [string[]]$PurviewLocations = @("Australia East", "Brazil South", "Canada Central", "Central India", "East US", "East US 2", "South Central US", "Southeast Asia", "UK South", "West Europe")
-
-### Install AzureAD Powershell cmdlet module
-Write-Output "Checking for AzureAD Module."
-if (-not (Get-InstalledModule -Name "AzureAD")) {
-    InstallAzureADModule
-}
-else {
-    Write-Output "AzureAD Module is already installed."
-}
-
-# Allow users to authenticate to allow for AD to connect for the Service principle authentication used by Purview in KeyVault.
-
-Write-Output "Check for AzureAD Module and Connect to AzureAD"
-if (-not(Get-Module -Name "AzureAD.Standard.Preview")) {
-    if (-not (Get-Module -Name "AzureAD")) {
-        Import-Module AzureAD 
-        Connect-AzureAD
-        ConnectAzAccount
-    }
-    else {
-        Write-Output "AzureAD Module is already imported. Follow Instructions to Connect."
-        Connect-AzureAD
-        ConnectAzAccount
-    }
-}
-elseif (Get-Module -Name "AzureAD.Standard.Preview") {
-    Write-Output "AzureAD.Standard.Preview Module is already imported. Follow Instructions to Connect."
-    AzureAD.Standard.Preview\Connect-AzureAD
-    Connect-AzAccount -UseDeviceAuthentication
-}
-
-Get-AzureADUser
-
-Write-Output "After AD Connection"
-
 
 ### Install Az Powershell cmdlet module
 Write-Output "Checking for Az Module."
@@ -86,13 +53,35 @@ else {
     Write-Output "SqlServer Module is already installed."
 }
 
-### Connect to AzAccount if not connected - once authenticated, display selected subscription and confirm with user the selection.
-# if (-not (Get-AzContext)) {
+### Install AzureAD Powershell cmdlet module
+Write-Output "Checking for AzureAD Module."
+if (-not (Get-InstalledModule -Name "AzureAD")) {
+    InstallAzureADModule
+}
+else {
+    Write-Output "AzureAD Module is already installed."
+}
 
-# }
-# else {
-#     Get-AzContext
-# }
+# Allow users to authenticate to allow for AD to connect for the Service principle authentication used by Purview in KeyVault.
+
+Write-Output "Check for AzureAD Module and Connect to AzureAD"
+if (-not(Get-Module -Name "AzureAD.Standard.Preview")) {
+    if (-not (Get-Module -Name "AzureAD")) {
+        Import-Module AzureAD 
+        Connect-AzureAD
+        ConnectAzAccount
+    }
+    else {
+        Write-Output "AzureAD Module is already imported. Follow Instructions to Connect."
+        Connect-AzureAD
+        ConnectAzAccount
+    }
+}
+elseif (Get-Module -Name "AzureAD.Standard.Preview") {
+    Write-Output "AzureAD.Standard.Preview Module is already imported. Follow Instructions to Connect."
+    AzureAD.Standard.Preview\Connect-AzureAD
+    Connect-AzAccount -UseDeviceAuthentication
+}
 
 ### Confirmation validation for user to confirm subscription.
 while ($finalres -ne 0) {
@@ -144,4 +133,5 @@ Write-Output "You have chosen $location as your resource location."
     -SynapseResourceGroup $ResourceGroup `
     -SqlUser $SqlUser `
     -SqlPassword $SqlPassword `
-    -ResourcesLocation $location
+    -ResourcesLocation $location `
+    -ResourceGroup $ResourceGroup
