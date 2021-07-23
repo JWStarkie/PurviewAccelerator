@@ -2,13 +2,14 @@
 
 **[Home](/README.md)** 
 
-## Table of Contents
+## :memo: Table of Contents
 
-1. [Local Script Execution](#local-machine-script-execution)
-2. [Cloud Shell Script Execution](#cloud-shell-script-execution)
-3. [What's Next](#whats-next)
-2. [Limitations](#limitations)
-3. [Troubleshooting](#troubleshooting)
+- [Prerequisites](#hammer-prerequisites)
+- [Local Script Execution](#local-machine-script-execution)
+- [Cloud Shell Script Execution](#cloud-shell-script-execution)
+- [What's Next](#whats-next)
+- [Limitations](#limitations)
+- [Troubleshooting](#troubleshooting)
 
 ## :hammer: Prerequisites
 
@@ -20,7 +21,7 @@
 
 ## :mega: Introduction 
 
-{Insert intro about this project and why it came about.}
+*{Insert intro about this project and why it came about.}*
 
 ## :dart: Objectives
 
@@ -46,56 +47,28 @@
 
 https://github.com/markdown-templates/markdown-emojis
 
-## Local Machine Script Execution
+## :computer: Local Machine Script Execution
 
-1. Sign in to the [Azure portal](https://portal.azure.com) with your Azure account and from the **Home** screen, click **Create a resource**.
+1. Clone this repository to a directory of your choice on your local machine. 
+    * `git clone https://github.com/JWStarkie/PurviewAccelerator.git`
+2. Open your PowerShell Terminal and navigate to the folder.
+3. Go one level deeper to the `\PurviewStarter` folder.
+4. In your terminal run the command `.\RunStarterKit.ps1` to execute the script file.
+5. A pop-up window to log into your AzureAD account will become visible. Log in.
+6. Another pop-up window to log in to your AzAccount will become visible. Log in.
+7. You will need to provide the necessary inputs **in the terminal** when requested:
 
-    ![Create a Resource](../images/module01/01.01-create-resource.png)  
-
-2. Search the Marketplace for "Azure Purview" and click **Create**.
-
-    ![Create Purview Resource](../images/module01/01.02-create-purview.png)
-
-3. Provide the necessary inputs on the **Basics** tab.  
-
-    > Note: The table below provides example values for illustrative purposes only, ensure to specify values that make sense for your deployment.
-
-    | Parameter  | Example Value |
-    | --- | --- |
-    | Subscription | `Azure Internal Access` |
-    | Resource group | `purviewlab` |
-    | Purview account name | `purview-69426` |
-    | Location | `Brazil South` |
-
-    ![Purview Account Basics](../images/module01/01.03-create-basic.png)
-
-4. Provide the necessary inputs on the **Configuration** tab.
-
-    | Parameter  | Example Value | Note |
+    | Parameter  | Default Value | Note |
     | --- | --- | --- |
-    | Platform size | `4 capacity units` | Sufficient for non-production scenarios. |
-
-    > :bulb: **Did you know?**
-    >
-    > **Capacity Units** determine the size of the platform and is a **provisioned** (fixed) set of resources that is needed to keep the Azure Purview platform up and running. 1 Capacity Unit is able to support approximately 1 API call per second. Capacity Units are required regardless of whether you plan to invoke the Azure Purview API endpoints directly (i.e. ISV scenario) or indirectly via Purview Studio (GUI).
-    > 
-    > **vCore Hours** on the other hand is the unit used to measure **serverless** compute that is needed to run a scan. You only pay per vCore Hour of scanning that you consume (rounded up to the nearest minute).
-    >
-    > For more information, check out the [Azure Purview Pricing](https://azure.microsoft.com/en-us/pricing/details/azure-purview/) page.
-
-    ![Configure Purview Account](../images/module01/01.04-create-configuration.png)
-
-5. On the **Review + Create** tab, once the message in the ribbon returns "Validation passed", verify your selections and click **Create**.
-
-    ![Create Purview Account](../images/module01/01.05-create-create.png)
-
-6. Wait several minutes while your deployment is in progress. Once complete, click **Go to resource**.
-
-    ![Go to resource](../images/module01/01.06-goto-resource.png)
+    | Subscription for deployment | The first available subscription will be printed in the console and selected if you press enter or choose `Yes` | ![Subscription Choice Screenshot](Images\SubscriptionChoice.png) |
+    | Deployment Location Choice | `Brazil South`  Please choose another available location by entering the corresponding number| ![Location Choice Screenshot](Images\LocationChoice.png) |
+8. Wait 5-10 minutes while your deployment is in progress. Once complete, your resource group name and SQL credentials will be printed to the console.
+    ![Go to resource](Images/DeploymentDetails.png)
+9. Go to the [Azure Portal](https://portal.azure.com/#home) to access the resources.
 
 <div align="right"><a href="#purview-accelerator-usage-guide">↥ Back to top</a></div>
 
-## Cloud Shell Script Execution
+## :cloud: Cloud Shell Script Execution
 
 1. Navigate to your Azure Purview account and select **Access Control (IAM)** from the left navigation menu.
 
@@ -135,19 +108,19 @@ https://github.com/markdown-templates/markdown-emojis
 
 <div align="right"><a href="#purview-accelerator-usage-guide">↥ Back to top</a></div>
 
-## What's Next
+## :thought_balloon: What's Next
 
 1. To open the out of the box user experience, navigate to the Azure Purview account instance and click **Open Purview Studio**.
 
 <div align="right"><a href="#purview-accelerator-usage-guide">↥ Back to top</a></div>
 
-## Limitations
+## :construction: Limitations
 
 1. To open the out of the box user experience, navigate to the Azure Purview account instance and click **Open Purview Studio**.
 
 <div align="right"><a href="#purview-accelerator-usage-guide">↥ Back to top</a></div>
 
-## Troubleshooting
+## :triangular_flag_on_post: Troubleshooting
 
 1. To open the out of the box user experience, navigate to the Azure Purview account instance and click **Open Purview Studio**.
 
@@ -155,34 +128,8 @@ https://github.com/markdown-templates/markdown-emojis
 
 <div align="right"><a href="#purview-accelerator-usage-guide">↥ Back to top</a></div>
 
-## :mortar_board: Knowledge Check
-
-1. Which of the following Azure Purview pricing meters is fluid, with consumption varying based on usage?
-
-    A ) Capacity Units  
-    B ) vCore Hours  
-    C ) Neither
-
-2. Which of the following Azure Purview pricing meters is fixed, with consumption based on quantity provisioned?
-
-    A ) Capacity Units  
-    B ) vCore Hours  
-    C ) Neither
-
-3. Which Azure Purview module provides the base functionality (i.e. source registration, automated scanning and classification, data discovery)?
-
-    A ) C0  
-    B ) C1  
-    C ) D0
-
-4. Which predefined Azure Purview role provides access to manage data sources?
-
-    A ) Purview Data Reader  
-    B ) Purview Data Curator  
-    C ) Purview Data Source Administrator
-
-<div align="right"><a href="#purview-accelerator-usage-guide">↥ Back to top</a></div>
-
-## :tada: Summary
+## :rocket: Summary
 
 This module provided an overview of how to create an Azure Purview account instance.
+
+<div align="right"><a href="#purview-accelerator-usage-guide">↥ Back to top</a></div>
