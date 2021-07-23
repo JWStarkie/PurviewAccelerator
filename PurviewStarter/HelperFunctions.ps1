@@ -54,7 +54,7 @@ Function New-MenuLocation ($question, $locations) {
     $index = 0 #Temporary - need to work out way of first character being different for all options
     foreach ($location in $locations) {
         $options += [ChoiceDescription]::new("&$index $location", "$location is the location")
-        if ($location -eq "West Europe") {
+        if ($location -eq "Brazil South") {
             $default = $index
         }
         $index = $index + 1

@@ -4,9 +4,11 @@
 
 ## Table of Contents
 
-1. [Create an Azure Purview Account](#1-create-an-azure-purview-account)
-2. [Grant Access to Azure Purview's Data Plane](#2-grant-access-to-azure-purviews-data-plane)
-3. [Open Purview Studio](#3-open-purview-studio)
+1. [Local Script Execution](#local-machine-script-execution)
+2. [Cloud Shell Script Execution](#cloud-shell-script-execution)
+3. [What's Next](#whats-next)
+2. [Limitations](#limitations)
+3. [Troubleshooting](#troubleshooting)
 
 ## :hammer: Prerequisites
 
@@ -42,7 +44,9 @@
 
 <div align="right"><a href="#purview-accelerator-usage-guide">↥ Back to top</a></div>
 
-## 1. Create an Azure Purview Account
+https://github.com/markdown-templates/markdown-emojis
+
+## Local Machine Script Execution
 
 1. Sign in to the [Azure portal](https://portal.azure.com) with your Azure account and from the **Home** screen, click **Create a resource**.
 
@@ -91,7 +95,7 @@
 
 <div align="right"><a href="#purview-accelerator-usage-guide">↥ Back to top</a></div>
 
-## 2. Grant Access to Azure Purview's Data Plane
+## Cloud Shell Script Execution
 
 1. Navigate to your Azure Purview account and select **Access Control (IAM)** from the left navigation menu.
 
@@ -131,7 +135,19 @@
 
 <div align="right"><a href="#purview-accelerator-usage-guide">↥ Back to top</a></div>
 
-## 3. Open Purview Studio
+## What's Next
+
+1. To open the out of the box user experience, navigate to the Azure Purview account instance and click **Open Purview Studio**.
+
+<div align="right"><a href="#purview-accelerator-usage-guide">↥ Back to top</a></div>
+
+## Limitations
+
+1. To open the out of the box user experience, navigate to the Azure Purview account instance and click **Open Purview Studio**.
+
+<div align="right"><a href="#purview-accelerator-usage-guide">↥ Back to top</a></div>
+
+## Troubleshooting
 
 1. To open the out of the box user experience, navigate to the Azure Purview account instance and click **Open Purview Studio**.
 
