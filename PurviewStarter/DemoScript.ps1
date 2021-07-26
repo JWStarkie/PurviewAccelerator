@@ -511,6 +511,15 @@ New-AzRoleAssignment @RoleAssignmentParams
 # To allow user access to the portal after resource creation
 New-AzSynapseFirewallRule -WorkspaceName $SynapseWorkspaceName -Name "UserAccessFirewallRule" -StartIpAddress "0.0.0.0" -EndIpAddress "255.255.255.255"
 
+$SynapseResourceScope = "/subscriptions/$subscriptionId/resourceGroups/$SynapseResourceGroup/providers/Microsoft.Synapse/workspaces/$SynapseWorkspaceName"
+
+$PurviewSynapseRoleAssignmentParams = @{
+    ObjectId           = $ObjectIdpv
+    RoleDefinitionName = "Reader"
+    Scope              = $SynapseResourceScope
+}
+New-AzRoleAssignment @PurviewSynapseRoleAssignmentParams
+
 $SQLPoolName = "SQLPool"
 # Create SQL pool in Synapse workspace
 New-AzSynapseSqlPool -WorkspaceName $SynapseWorkspaceName -Name  $SQLPoolName -PerformanceLevel DW100c
