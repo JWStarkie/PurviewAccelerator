@@ -159,7 +159,7 @@ This deployment script will deploy the following resources:
 
 ## :thought_balloon: What's Next
 
-Efficiancy improvements to the deployment:
+Efficiency improvements to the deployment:
 - Deployment efficiency (attempt to speed up time to deployment).
 - Refactoring and cleaning up of version 1.0 the accelerator.
 - Resolving any bugs that arise during use. 
@@ -171,7 +171,7 @@ If there's demand for further Purview specific functionality then we can develop
 - Automatic trigger of scans for data sources in Purview.
 - Upload sample glossary terms to Purview catalog.
 
-We'd like your feedback on what we should focus on first/next. Feel free to submit issues/feedback in the repository.
+We'd like your feedback on what we should focus on first/next. Feel free to reach out via the [discussions board](https://github.com/JWStarkie/PurviewAccelerator/discussions).
 
 > :bulb: *Please submit a screenshot of any errors with your issues (if applicable).*
 
