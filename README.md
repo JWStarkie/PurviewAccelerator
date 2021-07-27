@@ -26,9 +26,9 @@
 
 Initial exploration of Purview can be complicated to set up given all the permissions needed for Purview to access different sources. Purview accelerator is ideal for those initial exploration scenarios as well as scenarios where you need to quickly spin up a Purview demo environment. 
 
-Underlying sources such as Blog Storage, ADLS Gen2 and Synapse are spun up as part of the accelerator, data is generated and moved acrossed the data platform using ADF and permissions are assigned automatically for Purview to access them. 
+Underlying sources such as Blog Storage, ADLS Gen2 and Synapse are spun up as part of the accelerator, data is generated and moved across the data platform using ADF and permissions are assigned automatically for Purview to access them. 
 
-As a result, you will be able to focus on exploring or demonstrating the Purview UI without having to worry about the logistics of setting up the environment and associating infrastrature. 
+As a result, you will be able to focus on exploring or demonstrating the Purview UI without having to worry about the logistics of setting up the environment and associating infrastructure. 
 
 Purview Accelerator is for:
 - Users who are just getting started with Purview.
