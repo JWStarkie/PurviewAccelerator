@@ -162,8 +162,7 @@ This deployment script will deploy the following resources:
 Efficiancy improvements to the deployment:
 - Deployment efficiency (attempt to speed up time to deployment).
 - Refactoring and cleaning up of version 1.0 the accelerator.
-- One-click deployment in the Azure Portal UI.
-- Infrastructure as code using Terraform.
+- Resolving any bugs that arise during use. 
 
 
 **Additionally:**
@@ -173,6 +172,8 @@ If there's demand for further Purview specific functionality then we can develop
 - Upload sample glossary terms to Purview catalog.
 
 We'd like your feedback on what we should focus on first/next. Feel free to submit issues/feedback in the repository.
+
+> :bulb: *Please submit a screenshot of any errors with your issues (if applicable).*
 
 <div align="right"><a href="#purview-accelerator-usage-guide">↥ Back to top</a></div>
 
