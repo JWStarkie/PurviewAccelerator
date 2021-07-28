@@ -18,9 +18,12 @@
 
 * An [Azure account](https://azure.microsoft.com/en-us/free/) with an active subscription.
 * Your must have permissions to create resources in your Azure subscription.
-* Your subscription must have the following [resource providers](https://docs.microsoft.com/en-us/azure/purview/create-catalog-portal#configure-your-subscription) registered: **Microsoft.Purview**, **Microsoft.Storage**, and **Microsoft.EventHub**.
+* Your subscription must have the following [resource providers](https://docs.microsoft.com/en-us/azure/purview/create-catalog-portal#configure-your-subscription) registered: **Microsoft.Purview**, **Microsoft.Storage**,  **Microsoft.Sql** and **Microsoft.EventHub**.
 * If you wish to execute the scripts on your local machine, you'll need Windows PowerShell installed.
     * You'll need to open this as an administrator for this to work.
+* To prevent the `PSSecurityException` error, run following script to grant permissions:
+
+    * `Set-ExecutionPolicy -ExecutionPolicy UnRestricted -Scope CurrentUser`
 
 ## :mega: Introduction 
 
@@ -84,6 +87,7 @@ Purview Accelerator is for:
     * `git clone https://github.com/JWStarkie/PurviewAccelerator.git`
 2. Open your PowerShell Terminal and navigate to the folder.
 > :warning: **please note:** you will need to open your PowerShell window as an administrator. *Right click on the PowerShell application and select "Run as admin"*.
+> :bulb: **just in case:** you may run into `PSSecurityException` errors if you've never run PowerShell scripts on your machine. Please [see here](#triangular_flag_on_post-troubleshooting) for steps to resolve this.
 3. Go one level deeper to the `\PurviewStarter` folder.
 4. In your terminal run the command `.\RunStarterKit.ps1` to execute the script file.
 5. A pop-up window to log into your AzureAD account will become visible. Log in.
@@ -184,18 +188,18 @@ In order to save cost on Azure, once you are done with demo or exploration, plea
 
 ## :triangular_flag_on_post: Troubleshooting
 
-- Cloud file access denied error does cause issues with package installs. Currently registered as a bug with PowerShell package. Alternative way around this is to run individual `Install-Module` command direct in PowerShell.
+1. If issues running scripts on your machine and you get the following error:
 
-- If issues running scripts on your machine and you get the following error:
+    `+ CategoryInfo : SecurityError: (:) [], PSSecurityException`
+    `+ FullyQualifiedErrorId : UnauthorizedAccess`
 
-`+ CategoryInfo : SecurityError: (:) [], PSSecurityException`
-`+ FullyQualifiedErrorId : UnauthorizedAccess`
+    - To prevent the `PSSecurityException` error, run following script to grant permissions:
 
-- Run following script to grant permissions:
+        - `Set-ExecutionPolicy -ExecutionPolicy UnRestricted -Scope CurrentUser`
 
-- `Set-ExecutionPolicy -ExecutionPolicy UnRestricted -Scope CurrentUser`
-
- - When running in Powershell 7+ and if you also have Powersher 5.1 with AzureRM modules installed, you will running into some issues using this script:
+ 2. Cloud file access denied error does cause issues with package installs. Currently registered as a bug with PowerShell package. Alternative way around this is to run individual `Install-Module` command direct in PowerShell.
+ 
+ 3. When running in Powershell 7+ and if you also have Powersher 5.1 with AzureRM modules installed, you will running into some issues using this script:
 
 
     - Solution: `Import-Module AzureAD -UseWindowsPowerShell`

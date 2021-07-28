@@ -20,7 +20,7 @@ Function InstallAZAccountsModule () {
 
 Function InstallSqlServerModule () {
     Write-Output "Installing SqlServer Module. Please wait for completion notification."
-    Import-Module -Name SqlServer -Scope CurrentUser -Force
+    Install-Module -Name SqlServer -Scope CurrentUser -Force
     Write-Output "SqlServer Module install complete."
 }
 
