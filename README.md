@@ -1,4 +1,4 @@
-# Purview Accelerator Usage Guide
+# Azure Purview Accelerator Usage Guide
 
 ## :memo: Table of Contents
 
