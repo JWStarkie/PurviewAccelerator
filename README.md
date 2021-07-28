@@ -87,6 +87,7 @@ Purview Accelerator is for:
     * `git clone https://github.com/JWStarkie/PurviewAccelerator.git`
 2. Open your PowerShell Terminal and navigate to the folder.
 > :warning: **please note:** you will need to open your PowerShell window as an administrator. *Right click on the PowerShell application and select "Run as admin"*.
+
 > :bulb: **just in case:** you may run into `PSSecurityException` errors if you've never run PowerShell scripts on your machine. Please [see here](#triangular_flag_on_post-troubleshooting) for steps to resolve this.
 3. Go one level deeper to the `\PurviewStarter` folder.
 4. In your terminal run the command `.\RunStarterKit.ps1` to execute the script file.
