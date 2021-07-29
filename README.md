@@ -200,7 +200,7 @@ In order to save cost on Azure, once you are done with demo or exploration, plea
 
  2. Cloud file access denied error does cause issues with package installs. Currently registered as a bug with PowerShell package. Alternative way around this is to run individual `Install-Module` command direct in PowerShell.
  
- 3. When running in Powershell 7+ and if you also have Powersher 5.1 with AzureRM modules installed, you will running into some issues using this script:
+ 3. When running in Powershell 7+ and if you also have Powershell 5.1 with AzureRM modules installed, you will running into some issues. You can resolve by using this script:
 
 
     - Solution: `Import-Module AzureAD -UseWindowsPowerShell`
