@@ -2,7 +2,7 @@ using namespace System.Management.Automation.Host
 
 Function InstallAzureADModule () {
     Write-Output "Installing AzureAD Module. Please follow instructions on the pop-up window to complete this step."
-    Install-Module -Name AzureAD -Scope CurrentUser -Force
+    Install-Module -Name AzureAD -Scope CurrentUser -AllowClobber -Force
     Write-Output "AzureAD Module install complete."
 }
 
