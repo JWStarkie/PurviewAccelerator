@@ -33,9 +33,21 @@ Function InstallAZSynapseModule () {
 Function ConnectAzAccount () {
     Write-Output "Connecting to Azure Account. Please follow instructions on the pop-up window to complete this step."
     Write-Output ConnectAzAccount
+    Clear-AzContext -Scope CurrentUser -Force
     Connect-AzAccount
-    Write-Output "Account connected. Azure Context:"
     Get-AzContext
+    ### Confirmation validation for user to confirm tenant.
+    while ($finalResult -ne 0) {
+        $finalResult = New-Menu -question "Do you wish to choose the Tenant selected above?"
+        if ($finalResult -eq 1) {
+            Get-AzTenant
+            Write-Output "Please copy and paste the ID of the Tenant you would like to use:"
+            $userInput = Read-Host
+            Connect-AzAccount -TenantId "$userInput"
+            Get-AzTenant -TenantId "$userInput"
+        }
+    }
+    Write-Output "Azure Account connected."
 }
 
 # Function to ask the user for input

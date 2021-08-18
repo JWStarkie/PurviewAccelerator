@@ -68,13 +68,15 @@ Write-Output "Check for AzureAD Module and Connect to AzureAD"
 if (-not(Get-Module -Name "AzureAD.Standard.Preview")) {
     if (-not (Get-Module -Name "AzureAD")) {
         Import-Module AzureAD 
-        Connect-AzureAD
         ConnectAzAccount
+        $connectedTenantId = (get-azcontext).subscription.tenantid
+        Connect-AzureAD -TenantId "$connectedTenantId"
     }
     else {
         Write-Output "AzureAD Module is already imported. Follow Instructions to Connect."
-        Connect-AzureAD
         ConnectAzAccount
+        $connectedTenantId = (get-azcontext).subscription.tenantid
+        Connect-AzureAD -TenantId "$connectedTenantId"
     }
 }
 elseif (Get-Module -Name "AzureAD.Standard.Preview") {
