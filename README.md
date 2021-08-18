@@ -1,4 +1,6 @@
-# Azure Purview Accelerator Usage Guide
+# Azure Purview PoC Accelerator Usage Guide
+
+### :warning: Please note this accelerator should not be used for production, it has been developed purely for proof of concept and exploratory use. ⚠️
 
 ## :memo: Table of Contents
 
