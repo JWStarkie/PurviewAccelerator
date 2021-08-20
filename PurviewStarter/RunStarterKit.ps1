@@ -83,10 +83,10 @@ elseif (Get-Module -Name "AzureAD.Standard.Preview") {
     Write-Output "AzureAD.Standard.Preview Module is already imported. Follow Instructions to Connect."
     AzureAD.Standard.Preview\Connect-AzureAD
     Connect-AzAccount -UseDeviceAuthentication
-    Get-AzContext
 }
 
 ### Confirmation validation for user to confirm subscription.
+Get-AzContext
 while ($finalres -ne 0) {
     $finalres = New-Menu -question "Do you wish to choose the Subscription selected above?"
     if ($finalres -eq 1) {

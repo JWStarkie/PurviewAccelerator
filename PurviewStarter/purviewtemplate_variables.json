@@ -22,7 +22,7 @@
       "dependsOn": [],
       "sku": {
         "name": "Standard",
-        "capacity": "4"
+        "capacity": "1"
       },
       "tags": {}
     }
