@@ -475,8 +475,11 @@ Write-Output $ObjectIdpv
 $usercontextAccountId = (Get-AzContext).account.id
 Write-Output $usercontextAccountId
 
+$usercontextAccountObjectId = (Get-AzADUser -Mail $usercontextAccountId).id
+
 New-AzKeyVault -Name $KeyVaultName -ResourceGroupName $ResourceGroup -Location $ResourcesLocation
-Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -UserPrincipalName $usercontextAccountId -PermissionsToSecrets get, set, delete, list
+# Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -UserPrincipalName $usercontextAccountId -PermissionsToSecrets get, set, delete, list
+Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -ObjectId $usercontextAccountObjectId -PermissionsToSecrets get, set, delete, list
 Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -ObjectId $ObjectIdpv -PermissionsToSecrets get, set, delete, list
 $secretvalue = ConvertTo-SecureString $SqlPassword -AsPlainText -Force
 Set-AzKeyVaultSecret -VaultName $KeyVaultName -Name "SQLPassword" -SecretValue $secretvalue
@@ -526,39 +529,40 @@ New-AzSynapseSqlPool -WorkspaceName $SynapseWorkspaceName -Name  $SQLPoolName -P
 
 Write-Output "Synapse Workspace Account Created"
 
-if (@(Get-AzureADUser -ObjectId $usercontextAccountId).Count -eq 0) {
-    Write-Output "Log in timed out, please log in again."
-    if (Get-Module -Name "AzureAD") {
-        Connect-AzureAD
-    }
-    elseif (Get-Module -Name "AzureAD.Standard.Preview") {
-        Write-Output "AzureAD.Standard.Preview Module is already imported. Follow Instructions to Connect."
-        Connect-AzAccount -UseDeviceAuthentication
-    }
-}
+# if (@(Get-AzureADUser -ObjectId $usercontextAccountId).Count -eq 0) {
+#     Write-Output "Log in timed out, please log in again."
+#     if (Get-Module -Name "AzureAD") {
+#         Connect-AzureAD
+#     }
+#     elseif (Get-Module -Name "AzureAD.Standard.Preview") {
+#         Write-Output "AzureAD.Standard.Preview Module is already imported. Follow Instructions to Connect."
+#         Connect-AzAccount -UseDeviceAuthentication
+#     }
+# }
 
-$userADObjectId = (Get-AzureADUser -ObjectId $usercontextAccountId).ObjectId
 # User access to resource group 
-Write-output "Giving User Owner access over resource group."
-New-AzRoleAssignment -ObjectId $userADObjectId -RoleDefinitionName "Owner" -ResourceGroupName $CatalogResourceGroup
+# Write-output "Giving User Owner access over resource group."
+# New-AzRoleAssignment -ObjectId $userADObjectId -RoleDefinitionName "Owner" -ResourceGroupName $CatalogResourceGroup
 
 # User owner access to Purview 
-Write-Output "Setting the Managed Identity ($usercontextAccountId) $userADObjectId on the Catalog: $CatalogName"
+Write-Output "Setting the Managed Identity ($usercontextAccountId) $usercontextAccountObjectId on the Catalog: $CatalogName"
 
 $FullPurviewAccountScope2 = "/subscriptions/$subscriptionId/resourceGroups/$catalogResourceGroup/providers/Microsoft.Purview/accounts/$catalogName"
 
 $PurviewRoleDefinitionName = "Owner"
 
-RoleAssignmentsToCatalog -servicePrincipalId $userADObjectId ` -subscriptionId $SubscriptionId ` -resourceScope $FullPurviewAccountScope2 ` -roleId $PurviewRoleDefinitionName ` -catalogRGNameString $CatalogResourceGroup ` -catalogNameString $CatalogName
+# Giving user Owner access to Purview.
+RoleAssignmentsToCatalog -servicePrincipalId $usercontextAccountObjectId ` -subscriptionId $SubscriptionId ` -resourceScope $FullPurviewAccountScope2 ` -roleId $PurviewRoleDefinitionName ` -catalogRGNameString $CatalogResourceGroup ` -catalogNameString $CatalogName
 
-# Doing ADF role assignment here to prevent PrincipalId not found in directory error.
-Write-Output "RoleAssignments in progress."
-# ADF access to Purview
-$dataFactoryPrincipalId = $createdDataFactory.Identity.PrincipalId
-Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -ObjectId $dataFactoryPrincipalId -PermissionsToSecrets get, set, delete, list
+# Giving user Owner access to ADF to ensure pushing lineage to Purview  works.
+$DataFactoryScope = "/subscriptions/$subscriptionId/resourceGroups/$DatafactoryResourceGroup/providers/Microsoft.DataFactory/factories/$DatafactoryAccountName"
 
-Write-Output "Setting the Managed Identity $dataFactoryPrincipalId on the Catalog: $CatalogName"
-AddPurviewDataCuratorManagedIdentityToCatalog -servicePrincipalId $dataFactoryPrincipalId ` -resourceName $DatafactoryAccountName
+$DataFactoryUserRoleAssignmentParams = @{
+    ObjectId           = $usercontextAccountObjectId
+    RoleDefinitionName = $PurviewRoleDefinitionName
+    Scope              = $DataFactoryScope
+}
+New-AzRoleAssignment @DataFactoryUserRoleAssignmentParams
 
 # Synapse Analytics access to Purview
 $synapsePrincipalId = $SynapseInfo.Identity.PrincipalId
@@ -588,6 +592,15 @@ $azureStorageConnectionString = GetAzureStorageConnectionString -AccountName $Az
 $azureStorageGen2ConnectionString = GetAzureStorageConnectionString -AccountName $AzureStorageGen2AccountName `
     -ResourceGroup $AzureStorageGen2ResourceGroup `
     -OnlyAccessKey
+
+# Doing ADF role assignment here to prevent PrincipalId not found in directory error.
+Write-Output "RoleAssignments in progress."
+# ADF access to Purview
+$dataFactoryPrincipalId = $createdDataFactory.Identity.PrincipalId
+Set-AzKeyVaultAccessPolicy -VaultName $KeyVaultName -ObjectId $dataFactoryPrincipalId -PermissionsToSecrets get, set, delete, list
+
+Write-Output "Setting the Managed Identity $dataFactoryPrincipalId on the Catalog: $CatalogName"
+AddPurviewDataCuratorManagedIdentityToCatalog -servicePrincipalId $dataFactoryPrincipalId ` -resourceName $DatafactoryAccountName
 
 # Create the linked Services
 # TODO: remove hard-coded linkedService and dataset names

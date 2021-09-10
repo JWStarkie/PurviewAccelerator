@@ -68,23 +68,25 @@ Write-Output "Check for AzureAD Module and Connect to AzureAD"
 if (-not(Get-Module -Name "AzureAD.Standard.Preview")) {
     if (-not (Get-Module -Name "AzureAD")) {
         Import-Module AzureAD 
-        Connect-AzureAD
         ConnectAzAccount
+        $connectedTenantId = (get-azcontext).subscription.tenantid
+        Connect-AzureAD -TenantId "$connectedTenantId"
     }
     else {
         Write-Output "AzureAD Module is already imported. Follow Instructions to Connect."
-        Connect-AzureAD
         ConnectAzAccount
+        $connectedTenantId = (get-azcontext).subscription.tenantid
+        Connect-AzureAD -TenantId "$connectedTenantId"
     }
 }
 elseif (Get-Module -Name "AzureAD.Standard.Preview") {
     Write-Output "AzureAD.Standard.Preview Module is already imported. Follow Instructions to Connect."
     AzureAD.Standard.Preview\Connect-AzureAD
     Connect-AzAccount -UseDeviceAuthentication
-    Get-AzContext
 }
 
 ### Confirmation validation for user to confirm subscription.
+Get-AzContext
 while ($finalres -ne 0) {
     $finalres = New-Menu -question "Do you wish to choose the Subscription selected above?"
     if ($finalres -eq 1) {
