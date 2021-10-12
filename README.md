@@ -19,8 +19,9 @@
 ## :hammer: Prerequisites
 
 * An [Azure account](https://azure.microsoft.com/en-us/free/) with an active subscription.
-* Your must have permissions to create resources in your Azure subscription.
+* Your must have permissions to create resources and resource groups in your Azure subscription.
 * Your subscription must have the following [resource providers](https://docs.microsoft.com/en-us/azure/purview/create-catalog-portal#configure-your-subscription) registered: **Microsoft.Purview**, **Microsoft.Storage**,  **Microsoft.Sql** and **Microsoft.EventHub**.
+* No **Azure Policies** preventing creation of **Storage accounts** or **Event Hub** namespaces. Purview will deploy a managed Storage account and Event Hub when it is created. If a blocking policy exists and needs to remain in place, please follow the [Purview exception tag guide](https://docs.microsoft.com/en-us/azure/purview/create-purview-portal-faq#create-a-policy-exception-for-purview) to create an exception for Purview accounts.
 * If you wish to execute the scripts on your local machine, you'll need Windows PowerShell installed.
     * You'll need to open this as an administrator for this to work.
 * To prevent the `PSSecurityException` error, run following script to grant permissions:
