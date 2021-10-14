@@ -100,8 +100,8 @@ Purview Accelerator is for:
 
     | Parameter  | Default Value | Note |
     | --- | --- | --- |
-    | Subscription for deployment | The first available subscription will be printed in the console and selected if you press enter or choose `Yes` | ![Subscription Choice Screenshot](Images\SubscriptionChoice.png) |
-    | Deployment Location Choice | `Brazil South`  Please choose another available location by entering the corresponding number| ![Location Choice Screenshot](Images\LocationChoice.png) |
+    | Subscription for deployment | The first available subscription will be printed in the console and selected if you press enter or choose `Yes` | ![Subscription Choice Screenshot](Images/SubscriptionChoice.png) |
+    | Deployment Location Choice | `Brazil South`  Please choose another available location by entering the corresponding number| ![Location Choice Screenshot](Images/LocationChoice.png) |
 8. Wait 5-10 minutes while your deployment is in progress. Once complete, your resource group name and SQL credentials will be printed to the console.
     ![Go to resource](Images/DeploymentDetails.png)
 9. Go to the [Azure Portal](https://portal.azure.com/#home) to access the [resources](#rocket-summary).
