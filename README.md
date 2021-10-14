@@ -113,14 +113,18 @@ Purview Accelerator is for:
 1. Open up cloud shell, you can do so by either:
     * Open a browser to https://shell.azure.com
     * Select the cloud shell icon in the Azure portal.
+
     ![Cloud Shell Icon](Images\CloudShellIcon1.png)
+
 2. Clone this repository to a directory of your choice on your cloud shell.
     * `git clone https://github.com/JWStarkie/PurviewAccelerator.git`
 2. Navigate to the folder in the terminal.
 3. Go one level deeper to the `\PurviewStarter` folder.
 4. In your terminal run the command `.\RunStarterKit.ps1` to execute the script file.
 5. Instructions to log into your AzureAD account will become visible. You will need to authenticate your device by giving the authentication code in another tab or window.
+
 ![Cloud Shell Signin](Images\CloudShellLogin1.png)
+
 6. Instructions to log into your AzAccount account will become visible. You will need to authenticate your device by giving the authentication code in another tab or window **again**.
 7. You will need to provide the necessary inputs **in the terminal** when requested:
 
