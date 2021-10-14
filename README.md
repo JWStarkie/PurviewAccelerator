@@ -114,7 +114,7 @@ Purview Accelerator is for:
     * Open a browser to https://shell.azure.com
     * Select the cloud shell icon in the Azure portal.
 
-    ![Cloud Shell Icon](Images\CloudShellIcon1.png)
+    ![Cloud Shell Icon](Images/CloudShellIcon1.png)
 
 2. Clone this repository to a directory of your choice on your cloud shell.
     * `git clone https://github.com/JWStarkie/PurviewAccelerator.git`
@@ -123,15 +123,15 @@ Purview Accelerator is for:
 4. In your terminal run the command `.\RunStarterKit.ps1` to execute the script file.
 5. Instructions to log into your AzureAD account will become visible. You will need to authenticate your device by giving the authentication code in another tab or window.
 
-![Cloud Shell Signin](Images\CloudShellLogin1.png)
+![Cloud Shell Signin](Images/CloudShellLogin1.png)
 
 6. Instructions to log into your AzAccount account will become visible. You will need to authenticate your device by giving the authentication code in another tab or window **again**.
 7. You will need to provide the necessary inputs **in the terminal** when requested:
 
     | Parameter  | Default Value | Note |
     | --- | --- | --- |
-    | Subscription for deployment | The first available subscription will be printed in the console and selected if you press enter or choose `Yes` | ![Subscription Choice Screenshot](Images\SubscriptionChoice.png) |
-    | Deployment Location Choice | `Brazil South`  Please choose another available location by entering the corresponding number| ![Location Choice Screenshot](Images\LocationChoice.png) |
+    | Subscription for deployment | The first available subscription will be printed in the console and selected if you press enter or choose `Yes` | ![Subscription Choice Screenshot](Images/SubscriptionChoice.png) |
+    | Deployment Location Choice | `Brazil South`  Please choose another available location by entering the corresponding number| ![Location Choice Screenshot](Images/LocationChoice.png) |
 8. Wait 5-10 minutes while your deployment is in progress. Once complete, your resource group name and SQL credentials will be printed to the console.
     ![Go to resource](Images/DeploymentDetails.png)
 9. Go to the [Azure Portal](https://portal.azure.com/#home) to access the [resources](#rocket-summary).
