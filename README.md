@@ -2,7 +2,7 @@
 
 ### :warning: Please note this accelerator should not be used for production, it has been developed purely for proof of concept and exploratory use. ⚠️
 
-**:information_source: Feel free to check out the Bicep driven accelerator currently being developed at [PvDemo GitHub](https://aka.ms/pvdemo)**
+### :information_source: Feel free to check out the Bicep driven accelerator currently being developed at [PvDemo GitHub](https://aka.ms/pvdemo) for now, further development will be paused on this repo :information_source:
 
 ## :memo: Table of Contents
 
